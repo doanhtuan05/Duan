@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: html_head('Quản lý mã giảm giá')}"></head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <main class="container my-5 flex-grow-1">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold mb-0"><i class="fa-solid fa-ticket text-primary me-2"></i>Quản lý mã giảm giá</h3>
+            <a th:href="@{/admin/coupons/add}" class="btn btn-primary rounded-3 px-4 py-2">
+                <i class="fa-solid fa-plus me-2"></i>Thêm mã mới
+            </a>
+        </div>
+
+        <!-- Alerts -->
+        <div th:if="${successMessage}" class="alert alert-success border-0 rounded-3 shadow-sm py-3 mb-4" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger border-0 rounded-3 shadow-sm py-3 mb-4" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- Coupons Table -->
+        <div class="glass-card p-4 table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Mã Code</th>
+                        <th>Tên khuyến mãi</th>
+                        <th>Loại giảm</th>
+                        <th class="text-end">Giá trị giảm</th>
+                        <th class="text-end">Đơn tối thiểu</th>
+                        <th class="text-end">Giảm tối đa</th>
+                        <th class="text-center">Thời hạn</th>
+                        <th class="text-center">Lượt dùng</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center" style="width: 180px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="coupon : ${coupons}">
+                        <td><span class="badge bg-dark text-white px-3 py-2 fw-mono fs-6 rounded-3" th:text="${coupon.maCode}"></span></td>
+                        <td>
+                            <div class="fw-bold text-dark" th:text="${coupon.tenKhuyenMai}"></div>
+                        </td>
+                        <td>
+                            <span th:if="${coupon.loaiGiamGia == 'PERCENTAGE'}" class="text-info fw-bold">% Phần trăm</span>
+                            <span th:if="${coupon.loaiGiamGia == 'FIXED_AMOUNT'}" class="text-success fw-bold">Số tiền cố định</span>
+                        </td>
+                        <td class="text-end fw-bold">
+                            <span th:if="${coupon.loaiGiamGia == 'PERCENTAGE'}" th:text="${coupon.giaTriGiam} + '%'"></span>
+                            <span th:if="${coupon.loaiGiamGia == 'FIXED_AMOUNT'}" th:text="${#numbers.formatDecimal(coupon.giaTriGiam, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+                        </td>
+                        <td class="text-end text-muted">
+                            <span th:text="${coupon.giaTriToiThieu != null ? #numbers.formatDecimal(coupon.giaTriToiThieu, 0, 'COMMA', 0, 'POINT') + ' ₫' : '0 ₫'}"></span>
+                        </td>
+                        <td class="text-end text-muted">
+                            <span th:text="${coupon.giaTriGiamToiDa != null ? #numbers.formatDecimal(coupon.giaTriGiamToiDa, 0, 'COMMA', 0, 'POINT') + ' ₫' : 'Không giới hạn'}"></span>
+                        </td>
+                        <td class="text-center small">
+                            <div th:if="${coupon.ngayBatDau != null}" th:text="'Từ: ' + ${#temporals.format(coupon.ngayBatDau, 'dd/MM/yyyy')}"></div>
+                            <div th:if="${coupon.ngayKetThuc != null}" th:text="'Đến: ' + ${#temporals.format(coupon.ngayKetThuc, 'dd/MM/yyyy')}"></div>
+                            <div th:if="${coupon.ngayBatDau == null && coupon.ngayKetThuc == null}" class="text-muted">Không thời hạn</div>
+                        </td>
+                        <td class="text-center">
+                            <span class="fw-bold" th:text="${coupon.soLuongDaDung}"></span> / 
+                            <span th:text="${coupon.soLuong != null ? coupon.soLuong : '∞'}"></span>
+                        </td>
+                        <td class="text-center">
+                            <span th:if="${coupon.trangThai}" class="badge bg-success badge-premium">Hoạt động</span>
+                            <span th:if="${!coupon.trangThai}" class="badge bg-secondary badge-premium">Tạm khóa</span>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex gap-2 justify-content-center">
+                                <a th:href="@{/admin/coupons/edit/{id}(id=${coupon.id})}" class="btn btn-sm btn-outline-dark px-2 rounded-3">
+                                    <i class="fa-solid fa-pen-to-square"></i> Sửa
+                                </a>
+                                <a th:href="@{/admin/coupons/delete/{id}(id=${coupon.id})}" class="btn btn-sm btn-outline-danger px-2 rounded-3"
+                                   onclick="return confirm('Bạn có chắc chắn muốn xóa mã giảm giá này?')">
+                                    <i class="fa-solid fa-trash-can"></i> Xóa
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(coupons)}">
+                        <td colspan="10" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-ticket-slash fs-1 d-block mb-3"></i>
+                            Chưa có mã giảm giá nào được tạo.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

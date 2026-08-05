@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #4f46e5;
+    --primary-hover: #4338ca;
+    --secondary-color: #06b6d4;
+    --accent-color: #f43f5e;
+    --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --font-sans: 'Outfit', sans-serif;
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--bg-gradient);
+    min-height: 100vh;
+    color: #1e293b;
+}
+
+/* Glassmorphism elements */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 30px -10px rgba(79, 70, 229, 0.12);
+}
+
+/* Brand logo styling */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.navbar-brand .brand-text {
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Custom premium buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn:not(.btn-sm) {
+    padding: 10px 22px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary-color) 100%);
+    transform: scale(1.02);
+}
+
+.btn-accent {
+    background: linear-gradient(135deg, var(--accent-color) 0%, #fb7185 100%);
+    color: white;
+    border: none;
+}
+
+.btn-accent:hover {
+    background: linear-gradient(135deg, #e11d48 0%, var(--accent-color) 100%);
+    color: white;
+    transform: scale(1.02);
+}
+
+/* Custom badges */
+.badge-premium {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+/* Search bar styling */
+.search-bar {
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    padding: 12px 18px;
+    transition: all 0.2s ease;
+}
+
+.search-bar:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+/* Hat image glow effect */
+.product-img-container {
+    position: relative;
+    overflow: hidden;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    background: #f1f5f9;
+}
+
+.product-img {
+    transition: transform 0.5s ease;
+    object-fit: cover;
+    height: 250px;
+    width: 100%;
+}
+
+.glass-card:hover .product-img {
+    transform: scale(1.08);
+}
+
+/* Footer modern layout */
+footer {
+    background: #0f172a;
+    color: #94a3b8;
+    border-top: 1px solid #1e293b;
+}
+
+footer a {
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+footer a:hover {
+    color: var(--secondary-color);
+}
+
+/* Pagination modern styling */
+.pagination .page-link {
+    color: var(--primary-color);
+    border-radius: 8px;
+    margin: 0 3px;
+    border: 1px solid #e2e8f0;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Custom form cards */
+.auth-container {
+    max-width: 480px;
+    margin: 60px auto;
+}
+
+.form-label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #475569;
+}
+
+/* Cart table styling */
+.cart-table th {
+    font-weight: 600;
+    color: #475569;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.cart-table td {
+    vertical-align: middle;
+}
+
+/* Hero Banner Image Hover Effect */
+.hero-banner-img:hover {
+    transform: rotate(0deg) scale(1.05) !important;
+}

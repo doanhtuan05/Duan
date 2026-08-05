@@ -1,0 +1,275 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ----------------------------< com.web:app >-----------------------------
+[INFO] Building app 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:4.1.1-SNAPSHOT:run (default-cli) > test-compile @ app >>>
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ app ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 20 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ app ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ app ---
+[INFO] skip non existing resourceDirectory D:\Codedao2\website_ban_mu_thoi_trang\app\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ app ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] <<< spring-boot:4.1.1-SNAPSHOT:run (default-cli) < test-compile @ app <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:4.1.1-SNAPSHOT:run (default-cli) @ app ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::       (v4.1.1-SNAPSHOT)
+
+2026-06-21T16:50:24.699+07:00  INFO 6112 --- [app] [           main] com.web.app.AppApplication               : Starting AppApplication using Java 21.0.7 with PID 6112 (D:\Codedao2\website_ban_mu_thoi_trang\app\target\classes started by admin in D:\Codedao2\website_ban_mu_thoi_trang\app)
+2026-06-21T16:50:24.704+07:00  INFO 6112 --- [app] [           main] com.web.app.AppApplication               : No active profile set, falling back to 1 default profile: "default"
+2026-06-21T16:50:25.604+07:00  INFO 6112 --- [app] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-21T16:50:25.735+07:00  INFO 6112 --- [app] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 118 ms. Found 9 JPA repository interfaces.
+2026-06-21T16:50:26.363+07:00  INFO 6112 --- [app] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8085 (http)
+2026-06-21T16:50:26.381+07:00  INFO 6112 --- [app] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-21T16:50:26.382+07:00  INFO 6112 --- [app] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-06-21T16:50:26.511+07:00  INFO 6112 --- [app] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1747 ms
+2026-06-21T16:50:26.861+07:00  INFO 6112 --- [app] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-21T16:50:26.960+07:00  INFO 6112 --- [app] [           main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.1.Final
+2026-06-21T16:50:27.467+07:00  INFO 6112 --- [app] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-21T16:50:27.506+07:00  INFO 6112 --- [app] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-21T16:50:28.013+07:00  INFO 6112 --- [app] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection ConnectionID:1 ClientConnectionId: 5017e0b1-1908-4d4c-a214-c51a642b3392
+2026-06-21T16:50:28.016+07:00  INFO 6112 --- [app] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-21T16:50:28.112+07:00  WARN 6112 --- [app] [           main] org.hibernate.orm.deprecation            : HHH90000025: SQLServerDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-21T16:50:28.150+07:00  INFO 6112 --- [app] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:sqlserver://localhost:1433;concatNullYieldsNull=ON;quotedIdentifier=ON;connectRetryInterval=10;connectRetryCount=1;maxResultBuffer=-1;sendTemporalDataTypesAsStringForBulkCopy=true;delayLoadingLobs=true;useFmtOnly=false;vectorTypeSupport=v1;cacheBulkCopyMetadata=false;bulkCopyForBatchInsertAllowEncryptedValueModifications=false;bulkCopyForBatchInsertTableLock=false;bulkCopyForBatchInsertKeepNulls=false;bulkCopyForBatchInsertKeepIdentity=false;bulkCopyForBatchInsertFireTriggers=false;bulkCopyForBatchInsertCheckConstraints=false;bulkCopyForBatchInsertBatchSize=0;useBulkCopyForBatchInsert=false;cancelQueryTimeout=-1;sslProtocol=TLS;calcBigDecimalPrecision=false;useDefaultJaasConfig=false;jaasConfigurationName=SQLJDBCDriver;statementPoolingCacheSize=0;serverPreparedStatementDiscardThreshold=10;enablePrepareOnFirstPreparedStatementCall=false;fips=false;socketTimeout=0;authentication=NotSpecified;authenticationScheme=nativeAuthentication;xopenStates=false;datetimeParameterType=datetime2;sendTimeAsDatetime=true;replication=false;trustStoreType=JKS;trustServerCertificate=true;TransparentNetworkIPResolution=true;iPAddressPreference=IPv4First;serverNameAsACE=false;sendStringParametersAsUnicode=true;selectMethod=direct;responseBuffering=adaptive;queryTimeout=-1;packetSize=8000;multiSubnetFailover=false;loginTimeout=30;lockTimeout=-1;lastUpdateCount=true;useDefaultGSSCredential=false;prepareMethod=prepexec;encrypt=true;disableStatementPooling=true;databaseName=WebsiteBanMu;columnEncryptionSetting=Disabled;applicationName=Microsoft JDBC Driver for SQL Server;applicationIntent=readwrite;]
+	Database driver: Microsoft JDBC Driver 13.4 for SQL Server
+	Database dialect: SQLServerDialect
+	Database version: 16.0
+	Default catalog/schema: WebsiteBanMu/dbo
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 128
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-21T16:50:29.720+07:00  INFO 6112 --- [app] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: 
+    alter table san_pham 
+       alter column mo_ta NVARCHAR(MAX)
+2026-06-21T16:50:30.320+07:00  INFO 6112 --- [app] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-21T16:50:30.447+07:00  INFO 6112 --- [app] [           main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-21T16:50:31.884+07:00  WARN 6112 --- [app] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-21T16:50:31.924+07:00  INFO 6112 --- [app] [           main] o.s.b.w.a.WelcomePageHandlerMapping      : Adding welcome page template: index
+2026-06-21T16:50:32.371+07:00  INFO 6112 --- [app] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8085 (http) with context path '/'
+2026-06-21T16:50:32.377+07:00  INFO 6112 --- [app] [           main] com.web.app.AppApplication               : Started AppApplication in 8.24 seconds (process running for 8.74)
+Hibernate: 
+    select
+        tk1_0.id,
+        tk1_0.mat_khau,
+        tk1_0.ten_dang_nhap,
+        tk1_0.trang_thai,
+        tk1_0.vai_tro 
+    from
+        tai_khoan tk1_0 
+    where
+        tk1_0.ten_dang_nhap=?
+Hibernate: 
+    select
+        tk1_0.id,
+        tk1_0.mat_khau,
+        tk1_0.ten_dang_nhap,
+        tk1_0.trang_thai,
+        tk1_0.vai_tro 
+    from
+        tai_khoan tk1_0 
+    where
+        tk1_0.ten_dang_nhap=?
+Hibernate: 
+    select
+        count_big(*) 
+    from
+        danh_muc dm1_0
+Hibernate: 
+    select
+        count_big(*) 
+    from
+        thuong_hieu th1_0
+Hibernate: 
+    select
+        count_big(*) 
+    from
+        san_pham sp1_0
+2026-06-21T16:53:36.713+07:00  INFO 6112 --- [app] [nio-8085-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-21T16:53:36.714+07:00  INFO 6112 --- [app] [nio-8085-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-21T16:53:36.717+07:00  INFO 6112 --- [app] [nio-8085-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+Hibernate: 
+    select
+        sp1_0.id,
+        sp1_0.anh_url,
+        dm1_0.id,
+        dm1_0.mo_ta,
+        dm1_0.ten_danh_muc,
+        sp1_0.gia,
+        sp1_0.mo_ta,
+        sp1_0.ngay_tao,
+        sp1_0.so_luong,
+        sp1_0.ten_san_pham,
+        th1_0.id,
+        th1_0.mo_ta,
+        th1_0.ten_thuong_hieu 
+    from
+        san_pham sp1_0 
+    left join
+        danh_muc dm1_0 
+            on dm1_0.id=sp1_0.danh_muc_id 
+    left join
+        thuong_hieu th1_0 
+            on th1_0.id=sp1_0.thuong_hieu_id 
+    where
+        sp1_0.id=?
+Hibernate: 
+    select
+        top (?) sp1_0.id,
+        sp1_0.anh_url,
+        sp1_0.danh_muc_id,
+        sp1_0.gia,
+        sp1_0.mo_ta,
+        sp1_0.ngay_tao,
+        sp1_0.so_luong,
+        sp1_0.ten_san_pham,
+        sp1_0.thuong_hieu_id 
+    from
+        san_pham sp1_0 
+    where
+        (
+            ? is null 
+            or sp1_0.ten_san_pham like ? 
+            or sp1_0.mo_ta like ?
+        ) 
+        and (
+            ? is null 
+            or sp1_0.danh_muc_id=?
+        ) 
+        and (
+            ? is null 
+            or sp1_0.thuong_hieu_id=?
+        ) 
+        and (
+            ? is null 
+            or sp1_0.gia>=?
+        ) 
+        and (
+            ? is null 
+            or sp1_0.gia<=?
+        ) 
+    order by
+        sp1_0.ngay_tao desc
+Hibernate: 
+    select
+        dm1_0.id,
+        dm1_0.mo_ta,
+        dm1_0.ten_danh_muc 
+    from
+        danh_muc dm1_0 
+    where
+        dm1_0.id=?
+Hibernate: 
+    select
+        th1_0.id,
+        th1_0.mo_ta,
+        th1_0.ten_thuong_hieu 
+    from
+        thuong_hieu th1_0 
+    where
+        th1_0.id=?
+Hibernate: 
+    select
+        th1_0.id,
+        th1_0.mo_ta,
+        th1_0.ten_thuong_hieu 
+    from
+        thuong_hieu th1_0 
+    where
+        th1_0.id=?
+Hibernate: 
+    select
+        th1_0.id,
+        th1_0.mo_ta,
+        th1_0.ten_thuong_hieu 
+    from
+        thuong_hieu th1_0 
+    where
+        th1_0.id=?
+Hibernate: 
+    select
+        th1_0.id,
+        th1_0.mo_ta,
+        th1_0.ten_thuong_hieu 
+    from
+        thuong_hieu th1_0 
+    where
+        th1_0.id=?
+Hibernate: 
+    select
+        count_big(sp1_0.id) 
+    from
+        san_pham sp1_0 
+    where
+        (
+            ? is null 
+            or sp1_0.ten_san_pham like ? 
+            or sp1_0.mo_ta like ?
+        ) 
+        and (
+            ? is null 
+            or sp1_0.danh_muc_id=?
+        ) 
+        and (
+            ? is null 
+            or sp1_0.thuong_hieu_id=?
+        ) 
+        and (
+            ? is null 
+            or sp1_0.gia>=?
+        ) 
+        and (
+            ? is null 
+            or sp1_0.gia<=?
+        )
+Hibernate: 
+    select
+        dm1_0.id,
+        dm1_0.mo_ta,
+        dm1_0.ten_danh_muc 
+    from
+        danh_muc dm1_0
+Hibernate: 
+    select
+        th1_0.id,
+        th1_0.mo_ta,
+        th1_0.ten_thuong_hieu 
+    from
+        thuong_hieu th1_0
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  06:00 min
+[INFO] Finished at: 2026-06-21T16:56:20+07:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:4.1.1-SNAPSHOT:run (default-cli) on project app: Process terminated with exit code: -1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

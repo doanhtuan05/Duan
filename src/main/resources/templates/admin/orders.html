@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: html_head('Quản lý đơn hàng')}"></head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <main class="container my-5 flex-grow-1">
+        <h3 class="fw-bold mb-4"><i class="fa-solid fa-receipt text-primary me-2"></i>Quản lý đơn đặt hàng</h3>
+
+        <!-- Orders Table -->
+        <div class="glass-card p-4 table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 100px;">Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Ngày đặt hàng</th>
+                        <th>Người nhận hàng</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-end">Tổng tiền</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td class="text-center fw-bold" th:text="'#' + ${order.id}"></td>
+                        <td>
+                            <div class="fw-bold text-dark" th:text="${order.khachHang.hoTen}"></div>
+                            <div class="text-muted small" th:text="'Account: ' + ${order.khachHang.taiKhoan.tenDangNhap}"></div>
+                        </td>
+                        <td th:text="${#temporals.format(order.ngayDat, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td>
+                            <div class="fw-bold" th:text="${order.hoTenNhan}"></div>
+                            <div class="text-muted small" th:text="${order.soDienThoaiNhan}"></div>
+                        </td>
+                        <td class="text-center">
+                            <span th:if="${order.trangThai == 'PENDING'}" class="badge bg-warning text-dark badge-premium">Chờ xử lý</span>
+                            <span th:if="${order.trangThai == 'CONFIRMED'}" class="badge bg-info text-dark badge-premium">Đã xác nhận</span>
+                            <span th:if="${order.trangThai == 'SHIPPING'}" class="badge bg-primary text-white badge-premium">Đang giao</span>
+                            <span th:if="${order.trangThai == 'DELIVERED'}" class="badge bg-success text-white badge-premium">Đã giao</span>
+                            <span th:if="${order.trangThai == 'CANCELLED'}" class="badge bg-secondary text-white badge-premium">Đã hủy</span>
+                        </td>
+                        <td class="text-end fw-bold text-primary" th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                        <td class="text-center">
+                            <a th:href="@{/admin/orders/{id}(id=${order.id})}" class="btn btn-sm btn-outline-dark px-3 rounded-3">
+                                <i class="fa-solid fa-receipt me-1"></i>Chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

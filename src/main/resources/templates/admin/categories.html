@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: html_head('Quản lý danh mục')}"></head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <main class="container my-5 flex-grow-1">
+        <h3 class="fw-bold mb-4"><i class="fa-solid fa-list text-primary me-2"></i>Quản lý danh mục loại mũ</h3>
+
+        <!-- Alerts -->
+        <div th:if="${successMessage}" class="alert alert-success border-0 rounded-3 shadow-sm py-3 mb-4" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger border-0 rounded-3 shadow-sm py-3 mb-4" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Pane: Categories List & Rename Forms -->
+            <div class="col-md-8">
+                <div class="glass-card p-4">
+                    <h5 class="fw-bold mb-3 text-dark">Danh sách danh mục hiện có</h5>
+                    
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th style="width: 80px;" class="text-center">Mã ID</th>
+                                    <th>Tên danh mục</th>
+                                    <th class="text-center" style="width: 280px;">Cập nhật / Xóa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="cat : ${categories}">
+                                    <td class="text-center fw-bold" th:text="${cat.id}"></td>
+                                    <td>
+                                        <!-- Inline edit form for each category -->
+                                        <form th:action="@{/admin/categories/edit/{id}(id=${cat.id})}" method="post" class="d-flex gap-2">
+                                            <input type="text" name="tenDanhMuc" class="form-control form-control-sm" th:value="${cat.tenDanhMuc}" required>
+                                            <button type="submit" class="btn btn-sm btn-outline-success"><i class="fa-solid fa-check"></i> Lưu</button>
+                                        </form>
+                                    </td>
+                                    <td class="text-center">
+                                        <a th:href="@{/admin/categories/delete/{id}(id=${cat.id})}" 
+                                           class="btn btn-sm btn-outline-danger" 
+                                           onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này? Tất cả liên kết sản phẩm cần được gỡ bỏ.')">
+                                            <i class="fa-solid fa-trash-can me-1"></i>Xóa danh mục
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Pane: Add New Category -->
+            <div class="col-md-4">
+                <div class="glass-card p-4">
+                    <h5 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-folder-plus me-2"></i>Thêm danh mục mới</h5>
+                    <form th:action="@{/admin/categories/create}" method="post" th:object="${newCategory}">
+                        <div class="mb-4">
+                            <label for="newCatName" class="form-label">Tên danh mục mới *</label>
+                            <input type="text" th:field="*{tenDanhMuc}" id="newCatName" class="form-control" required placeholder="Ví dụ: Mũ Bucket, Snapback...">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2"><i class="fa-solid fa-plus me-2"></i>Thêm danh mục</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

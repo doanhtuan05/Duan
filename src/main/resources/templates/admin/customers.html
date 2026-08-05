@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: html_head('Quản lý khách hàng')}"></head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <main class="container my-5 flex-grow-1">
+        <h3 class="fw-bold mb-4"><i class="fa-solid fa-users text-primary me-2"></i>Quản lý danh sách khách hàng</h3>
+
+        <!-- Customers Table -->
+        <div class="glass-card p-4 table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 80px;">Mã KH</th>
+                        <th>Họ và tên</th>
+                        <th>Tên đăng nhập</th>
+                        <th>Số điện thoại</th>
+                        <th>Email</th>
+                        <th>Địa chỉ giao hàng mặc định</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="kh : ${customers}">
+                        <td class="text-center fw-bold" th:text="${kh.id}"></td>
+                        <td class="fw-bold text-dark" th:text="${kh.hoTen}"></td>
+                        <td>
+                            <span class="badge bg-light text-dark px-2 py-1" th:text="${kh.taiKhoan.tenDangNhap}"></span>
+                        </td>
+                        <td th:text="${kh.soDienThoai != null && !kh.soDienThoai.isBlank() ? kh.soDienThoai : '-'}"></td>
+                        <td th:text="${kh.email != null && !kh.email.isBlank() ? kh.email : '-'}"></td>
+                        <td class="text-truncate" style="max-width: 250px;" th:text="${kh.diaChi != null && !kh.diaChi.isBlank() ? kh.diaChi : '-'}" th:title="${kh.diaChi}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: html_head('Thanh toán đơn hàng')}"></head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <main class="container my-5 flex-grow-1">
+        <h3 class="fw-bold mb-4"><i class="fa-solid fa-credit-card text-primary me-2"></i>Thanh toán đơn hàng</h3>
+
+        <!-- Error feedback alert -->
+        <div th:if="${errorMessage}" class="alert alert-danger border-0 rounded-3 shadow-sm py-3 mb-4" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+        </div>
+
+        <form th:action="@{/checkout}" method="post">
+            <div class="row g-4">
+                <!-- Recipient Form Details -->
+                <div class="col-lg-7">
+                    <div class="glass-card p-4">
+                        <h5 class="fw-bold mb-4 border-bottom pb-2 text-primary"><i class="fa-solid fa-truck-ramp-box me-2"></i>Thông tin giao hàng</h5>
+                        
+                        <div class="mb-3">
+                            <label for="hoTenNhan" class="form-label">Họ và tên người nhận *</label>
+                            <input type="text" name="hoTenNhan" id="hoTenNhan" class="form-control" th:value="${hoTenNhan}" required placeholder="Họ tên người nhận hàng...">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="soDienThoaiNhan" class="form-label">Số điện thoại liên hệ *</label>
+                            <input type="tel" name="soDienThoaiNhan" id="soDienThoaiNhan" class="form-control" th:value="${soDienThoaiNhan}" required placeholder="Số điện thoại nhận hàng...">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="diaChiNhan" class="form-label">Địa chỉ nhận hàng *</label>
+                            <textarea name="diaChiNhan" id="diaChiNhan" class="form-control" rows="3" required placeholder="Ghi số nhà, ngõ/ngách, tên đường, phường/xã, quận/huyện, tỉnh/thành phố..." th:text="${diaChiNhan}"></textarea>
+                        </div>
+
+                        <div class="mb-0">
+                            <label for="ghiChu" class="form-label">Ghi chú giao hàng</label>
+                            <textarea name="ghiChu" id="ghiChu" class="form-control" rows="2" placeholder="Ghi chú về thời gian giao hàng hoặc yêu cầu thêm..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary Sidebar -->
+                <div class="col-lg-5">
+                    <div class="glass-card p-4">
+                        <h5 class="fw-bold mb-4 border-bottom pb-2 text-primary"><i class="fa-solid fa-basket-shopping me-2"></i>Thông tin đơn hàng</h5>
+                        
+                        <div class="list-group mb-4">
+                            <!-- Items List -->
+                            <div th:each="item : ${cartItems}" class="list-group-item bg-transparent border-0 border-bottom d-flex justify-content-between align-items-center py-3 px-0">
+                                <div class="d-flex align-items-center">
+                                    <img th:src="${item.sanPham.anhUrl != null ? (item.sanPham.anhUrl.startsWith('http') ? item.sanPham.anhUrl : '/uploads/' + item.sanPham.anhUrl) : 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=80'}"
+                                         class="rounded-2 me-3" alt="Product Image" style="width: 50px; height: 50px; object-fit: cover;">
+                                    <div>
+                                        <div class="fw-bold text-dark small" th:text="${item.sanPham.tenSanPham}"></div>
+                                        <div class="text-muted small" th:text="'Số lượng: ' + ${item.soLuong}"></div>
+                                    </div>
+                                </div>
+                                <span class="fw-bold text-primary small" th:text="${#numbers.formatDecimal(item.sanPham.gia * item.soLuong, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+                            </div>
+                        </div>
+
+                        <!-- Coupon Code Section -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-muted small"><i class="fa-solid fa-ticket me-1 text-primary"></i>Áp dụng mã giảm giá</label>
+                            <div class="input-group">
+                                <input type="text" id="couponCodeInput" name="couponCode" class="form-control" placeholder="Nhập mã giảm giá..." style="text-transform: uppercase;">
+                                <button class="btn btn-outline-primary" type="button" id="btnApplyCoupon">Áp dụng</button>
+                            </div>
+                            <div id="couponMessage" class="small mt-2" style="display: none;"></div>
+                        </div>
+
+                        <!-- Subtotals -->
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Tổng tiền hàng:</span>
+                            <span class="fw-bold" id="originalTotal" th:data-original-total="${tongTien}" th:text="${#numbers.formatDecimal(tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2" id="discountRow" style="display: none !important;">
+                            <span class="text-muted">Giảm giá:</span>
+                            <span class="fw-bold text-danger" id="discountValue">-0 ₫</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3 border-bottom pb-3">
+                            <span class="text-muted">Phí giao hàng:</span>
+                            <span class="text-success fw-bold">Miễn phí</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-4 fs-4 border-bottom pb-3">
+                            <span class="fw-bold">Thành tiền:</span>
+                            <span class="fw-bold text-primary" id="finalTotal" th:text="${#numbers.formatDecimal(tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fa-solid fa-wallet me-2"></i>Phương thức thanh toán
+                            </label>
+
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="radio"
+                                       name="paymentMethod"
+                                       id="cod"
+                                       value="COD"
+                                       checked>
+
+                                <label class="form-check-label" for="cod">
+                                    Thanh toán khi nhận hàng (COD)
+                                </label>
+                            </div>
+
+                            <div class="form-check mt-2">
+                                <input class="form-check-input"
+                                       type="radio"
+                                       name="paymentMethod"
+                                       id="qr"
+                                       value="QR">
+
+                                <label class="form-check-label" for="qr">
+                                    Thanh toán bằng mã QR
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-accent w-100 py-3 fs-5 fw-bold"><i class="fa-solid fa-circle-check me-2"></i>Xác nhận đặt hàng</button>
+                        <a th:href="@{/cart}" class="btn btn-outline-dark w-100 py-2 mt-2"><i class="fa-solid fa-angle-left me-2"></i>Quay lại giỏ hàng</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnApplyCoupon = document.getElementById('btnApplyCoupon');
+            const couponCodeInput = document.getElementById('couponCodeInput');
+            const couponMessage = document.getElementById('couponMessage');
+            const originalTotalElement = document.getElementById('originalTotal');
+            const discountRow = document.getElementById('discountRow');
+            const discountValue = document.getElementById('discountValue');
+            const finalTotal = document.getElementById('finalTotal');
+
+            const originalTotal = parseFloat(originalTotalElement.getAttribute('data-original-total'));
+
+            function formatCurrency(value) {
+                return new Intl.NumberFormat('vi-VN', { style: 'decimal' }).format(value) + ' ₫';
+            }
+
+            btnApplyCoupon.addEventListener('click', function() {
+                const code = couponCodeInput.value.trim();
+                
+                // Disable button and input during API call
+                btnApplyCoupon.disabled = true;
+                couponCodeInput.disabled = true;
+                
+                const params = new URLSearchParams();
+                params.append('couponCode', code);
+
+                fetch('/checkout/apply-coupon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: params
+                })
+                .then(response => response.json())
+                .then(data => {
+                    btnApplyCoupon.disabled = false;
+                    couponCodeInput.disabled = false;
+
+                    if (data.success) {
+                        couponMessage.style.display = 'block';
+                        couponMessage.className = 'small mt-2 text-success';
+                        couponMessage.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i>' + data.message;
+
+                        if (data.discount > 0) {
+                            discountRow.style.setProperty('display', 'flex', 'important');
+                            discountValue.textContent = '-' + formatCurrency(data.discount);
+                        } else {
+                            discountRow.style.setProperty('display', 'none', 'important');
+                        }
+                        finalTotal.textContent = formatCurrency(data.newTotal);
+                    } else {
+                        couponMessage.style.display = 'block';
+                        couponMessage.className = 'small mt-2 text-danger';
+                        couponMessage.innerHTML = '<i class="fa-solid fa-circle-xmark me-1"></i>' + data.message;
+
+                        discountRow.style.setProperty('display', 'none', 'important');
+                        finalTotal.textContent = formatCurrency(originalTotal);
+                    }
+                })
+                .catch(error => {
+                    btnApplyCoupon.disabled = false;
+                    couponCodeInput.disabled = false;
+                    
+                    couponMessage.style.display = 'block';
+                    couponMessage.className = 'small mt-2 text-danger';
+                    couponMessage.innerHTML = '<i class="fa-solid fa-circle-xmark me-1"></i> Có lỗi xảy ra trong quá trình áp dụng mã!';
+                    
+                    discountRow.style.setProperty('display', 'none', 'important');
+                    finalTotal.textContent = formatCurrency(originalTotal);
+                });
+            });
+
+            // Prevent form submit when pressing Enter in coupon input
+            couponCodeInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    btnApplyCoupon.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

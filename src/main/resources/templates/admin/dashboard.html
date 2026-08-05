@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: html_head('Admin Dashboard')}"></head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <main class="container my-5 flex-grow-1">
+        <!-- Dashboard Navigation Menu -->
+        <div class="row g-3 mb-4">
+            <div class="col-12">
+                <div class="glass-card p-3 d-flex flex-wrap gap-2 justify-content-between align-items-center">
+                    <h4 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-chart-line me-2"></i>Thống kê & Quản trị</h4>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/admin/products}" class="btn btn-sm btn-outline-dark"><i class="fa-solid fa-hat-cowboy me-1"></i>Sản phẩm</a>
+                        <a th:href="@{/admin/categories}" class="btn btn-sm btn-outline-dark"><i class="fa-solid fa-list me-1"></i>Danh mục</a>
+                        <a th:href="@{/admin/brands}" class="btn btn-sm btn-outline-dark"><i class="fa-solid fa-copyright me-1"></i>Thương hiệu</a>
+                        <a th:href="@{/admin/orders}" class="btn btn-sm btn-outline-dark"><i class="fa-solid fa-receipt me-1"></i>Đơn hàng</a>
+                        <a th:href="@{/admin/customers}" class="btn btn-sm btn-outline-dark"><i class="fa-solid fa-users me-1"></i>Khách hàng</a>
+                        <a th:href="@{/admin/coupons}" class="btn btn-sm btn-outline-dark"><i class="fa-solid fa-ticket me-1"></i>Mã giảm giá</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-6">
+                <div class="glass-card p-4 text-white" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 text-uppercase fw-bold small">Tổng doanh thu bán lẻ</h6>
+                            <h2 class="fw-bold mb-0" th:text="${#numbers.formatDecimal(tongDoanhThu, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></h2>
+                        </div>
+                        <i class="fa-solid fa-wallet fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="glass-card p-4 text-white" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 text-uppercase fw-bold small">Tổng đơn hàng giao thành công</h6>
+                            <h2 class="fw-bold mb-0" th:text="${tongDonHang} + ' Đơn'"></h2>
+                        </div>
+                        <i class="fa-solid fa-box-open fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts visualization -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-8">
+                <div class="glass-card p-4">
+                    <h5 class="fw-bold mb-4 text-primary"><i class="fa-solid fa-chart-simple me-2"></i>Biểu đồ Doanh thu Theo ngày</h5>
+                    <canvas id="revenueChart" style="max-height: 350px;"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="glass-card p-4">
+                    <h5 class="fw-bold mb-4 text-primary"><i class="fa-solid fa-chart-pie me-2"></i>Doanh thu Theo tháng</h5>
+                    <canvas id="monthlyChart" style="max-height: 350px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Breakdown Lists -->
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="glass-card p-4">
+                    <h6 class="fw-bold border-bottom pb-2 mb-3 text-success"><i class="fa-solid fa-calendar-day me-2"></i>Doanh thu theo ngày</h6>
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-sm align-middle small">
+                            <thead>
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th class="text-end">Doanh thu</th>
+                                    <th class="text-center">Số đơn</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="row : ${dsNgay}">
+                                    <td th:text="${row.label}"></td>
+                                    <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(row.revenue, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                                    <td class="text-center" th:text="${row.orderCount}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="glass-card p-4">
+                    <h6 class="fw-bold border-bottom pb-2 mb-3 text-info"><i class="fa-solid fa-calendar-week me-2"></i>Doanh thu theo tháng</h6>
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-sm align-middle small">
+                            <thead>
+                                <tr>
+                                    <th>Tháng</th>
+                                    <th class="text-end">Doanh thu</th>
+                                    <th class="text-center">Số đơn</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="row : ${dsThang}">
+                                    <td th:text="${row.label}"></td>
+                                    <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(row.revenue, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                                    <td class="text-center" th:text="${row.orderCount}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="glass-card p-4">
+                    <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary"><i class="fa-solid fa-calendar-days me-2"></i>Doanh thu theo năm</h6>
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-sm align-middle small">
+                            <thead>
+                                <tr>
+                                    <th>Năm</th>
+                                    <th class="text-end">Doanh thu</th>
+                                    <th class="text-center">Số đơn</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="row : ${dsNam}">
+                                    <td th:text="${row.label}"></td>
+                                    <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(row.revenue, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                                    <td class="text-center" th:text="${row.orderCount}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Chart.js dependency CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // Data sources from Thymeleaf projections
+        const labelsNgay = /*[[${dsNgay.![label]}]]*/ [];
+        const valuesNgay = /*[[${dsNgay.![revenue]}]]*/ [];
+
+        const labelsThang = /*[[${dsThang.![label]}]]*/ [];
+        const valuesThang = /*[[${dsThang.![revenue]}]]*/ [];
+
+        // 1. Line Chart for Daily Revenue
+        const ctxDaily = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctxDaily, {
+            type: 'line',
+            data: {
+                labels: labelsNgay.reverse(),
+                datasets: [{
+                    label: 'Doanh thu (₫)',
+                    data: valuesNgay.reverse(),
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // 2. Bar Chart for Monthly Revenue
+        const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+        new Chart(ctxMonthly, {
+            type: 'bar',
+            data: {
+                labels: labelsThang.reverse(),
+                datasets: [{
+                    label: 'Doanh thu tháng (₫)',
+                    data: valuesThang.reverse(),
+                    backgroundColor: '#06b6d4',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+        /*]]>*/
+    </script>
+</body>
+</html>

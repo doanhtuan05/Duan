@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: html_head(${coupon.id == null ? 'Thêm mã giảm giá' : 'Cập nhật mã giảm giá'})}"></head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <main class="container my-5 flex-grow-1">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="d-flex align-items-center mb-4">
+                    <a th:href="@{/admin/coupons}" class="btn btn-outline-dark rounded-circle me-3" style="width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                    <h3 class="fw-bold mb-0" th:text="${coupon.id == null ? 'Thêm mã giảm giá mới' : 'Cập nhật mã giảm giá'}"></h3>
+                </div>
+
+                <!-- Alerts -->
+                <div th:if="${errorMessage}" class="alert alert-danger border-0 rounded-3 shadow-sm py-3 mb-4" role="alert">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+                </div>
+
+                <div class="glass-card p-4 p-md-5">
+                    <form th:action="${coupon.id == null ? '/admin/coupons/add' : '/admin/coupons/edit/' + coupon.id}" 
+                          method="post" th:object="${coupon}">
+                        
+                        <div class="row g-4">
+                            <!-- Code -->
+                            <div class="col-md-6">
+                                <label for="maCode" class="form-label fw-bold">Mã Code *</label>
+                                <input type="text" th:field="*{maCode}" id="maCode" class="form-control" placeholder="Ví dụ: SUMMERSALE20, HELMET10" required 
+                                       th:readonly="${coupon.id != null}" style="text-transform: uppercase;">
+                                <div class="form-text">Mã code viết liền không dấu, sẽ tự động chuyển thành chữ hoa.</div>
+                            </div>
+
+                            <!-- Name -->
+                            <div class="col-md-6">
+                                <label for="tenKhuyenMai" class="form-label fw-bold">Tên Khuyến Mãi *</label>
+                                <input type="text" th:field="*{tenKhuyenMai}" id="tenKhuyenMai" class="form-control" placeholder="Ví dụ: Giảm giá hè 20%" required>
+                            </div>
+
+                            <!-- Discount Type -->
+                            <div class="col-md-6">
+                                <label for="loaiGiamGia" class="form-label fw-bold">Loại Giảm Giá *</label>
+                                <select th:field="*{loaiGiamGia}" id="loaiGiamGia" class="form-select" required>
+                                    <option value="PERCENTAGE">Giảm theo % phần trăm</option>
+                                    <option value="FIXED_AMOUNT">Giảm số tiền cố định (đ)</option>
+                                </select>
+                            </div>
+
+                            <!-- Discount Value -->
+                            <div class="col-md-6">
+                                <label for="giaTriGiam" class="form-label fw-bold">Giá Trị Giảm *</label>
+                                <div class="input-group">
+                                    <input type="number" step="any" th:field="*{giaTriGiam}" id="giaTriGiam" class="form-control" required min="1" placeholder="Ví dụ: 10 hoặc 50000">
+                                    <span class="input-group-text" id="discount-unit">% / đ</span>
+                                </div>
+                            </div>
+
+                            <!-- Minimum Order Value -->
+                            <div class="col-md-6">
+                                <label for="giaTriToiThieu" class="form-label fw-bold">Giá Trị Đơn Hàng Tối Thiểu (đ)</label>
+                                <div class="input-group">
+                                    <input type="number" step="any" th:field="*{giaTriToiThieu}" id="giaTriToiThieu" class="form-control" min="0" placeholder="Ví dụ: 200000">
+                                    <span class="input-group-text">đ</span>
+                                </div>
+                                <div class="form-text">Đơn hàng phải đạt giá trị này mới được dùng mã.</div>
+                            </div>
+
+                            <!-- Maximum Discount Amount -->
+                            <div class="col-md-6" id="max-discount-wrapper">
+                                <label for="giaTriGiamToiDa" class="form-label fw-bold">Số Tiền Giảm Tối Đa (đ)</label>
+                                <div class="input-group">
+                                    <input type="number" step="any" th:field="*{giaTriGiamToiDa}" id="giaTriGiamToiDa" class="form-control" min="0" placeholder="Để trống nếu không giới hạn">
+                                    <span class="input-group-text">đ</span>
+                                </div>
+                                <div class="form-text">Số tiền được giảm tối đa (chỉ áp dụng cho loại giảm %).</div>
+                            </div>
+
+                            <!-- Start Date -->
+                            <div class="col-md-6">
+                                <label for="ngayBatDau" class="form-label fw-bold">Ngày Bắt Đầu</label>
+                                <input type="datetime-local" th:field="*{ngayBatDau}" id="ngayBatDau" class="form-control">
+                            </div>
+
+                            <!-- End Date -->
+                            <div class="col-md-6">
+                                <label for="ngayKetThuc" class="form-label fw-bold">Ngày Kết Thúc</label>
+                                <input type="datetime-local" th:field="*{ngayKetThuc}" id="ngayKetThuc" class="form-control">
+                            </div>
+
+                            <!-- Total Quantity -->
+                            <div class="col-md-6">
+                                <label for="soLuong" class="form-label fw-bold">Tổng Số Lượng Mã Phát Hành</label>
+                                <input type="number" th:field="*{soLuong}" id="soLuong" class="form-control" min="1" placeholder="Để trống nếu không giới hạn">
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-6 d-flex align-items-center">
+                                <div class="form-check form-switch mt-4">
+                                    <input class="form-check-input" type="checkbox" th:field="*{trangThai}" id="trangThai">
+                                    <label class="form-check-label fw-bold ms-2" for="trangThai">Cho phép hoạt động</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a th:href="@{/admin/coupons}" class="btn btn-light rounded-3 px-4">Hủy bỏ</a>
+                            <button type="submit" class="btn btn-primary rounded-3 px-5">
+                                <i class="fa-solid fa-floppy-disk me-2"></i>Lưu mã giảm giá
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loaiGiamGia = document.getElementById('loaiGiamGia');
+            const discountUnit = document.getElementById('discount-unit');
+            const maxDiscountWrapper = document.getElementById('max-discount-wrapper');
+            const giaTriGiamToiDa = document.getElementById('giaTriGiamToiDa');
+
+            function updateUI() {
+                if (loaiGiamGia.value === 'PERCENTAGE') {
+                    discountUnit.textContent = '%';
+                    maxDiscountWrapper.style.opacity = '1';
+                    maxDiscountWrapper.style.pointerEvents = 'auto';
+                } else {
+                    discountUnit.textContent = 'đ';
+                    maxDiscountWrapper.style.opacity = '0.5';
+                    maxDiscountWrapper.style.pointerEvents = 'none';
+                    giaTriGiamToiDa.value = '';
+                }
+            }
+
+            loaiGiamGia.addEventListener('change', updateUI);
+            updateUI(); // Run once on load
+        });
+    </script>
+</body>
+</html>

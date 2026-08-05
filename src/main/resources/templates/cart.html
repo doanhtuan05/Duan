@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: html_head('Giỏ hàng')}"></head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <main class="container my-5 flex-grow-1">
+        <h3 class="fw-bold mb-4"><i class="fa-solid fa-cart-shopping text-primary me-2"></i>Giỏ hàng của bạn</h3>
+
+        <!-- Alerts -->
+        <div th:if="${successMessage}" class="alert alert-success border-0 rounded-3 shadow-sm py-3 mb-4" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger border-0 rounded-3 shadow-sm py-3 mb-4" role="alert">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- Empty Cart State -->
+        <div th:if="${cartItems.isEmpty()}" class="glass-card p-5 text-center my-4">
+            <i class="fa-solid fa-cart-arrow-down text-muted mb-3" style="font-size: 5rem;"></i>
+            <h4 class="fw-bold">Giỏ hàng của bạn đang trống!</h4>
+            <p class="text-muted mb-4">Hãy lướt xem bộ sưu tập mũ thời trang của chúng tôi để chọn sản phẩm ưng ý.</p>
+            <a th:href="@{/}" class="btn btn-primary px-4 py-2"><i class="fa-solid fa-store me-2"></i>Tiếp tục mua sắm</a>
+        </div>
+
+        <!-- Cart Content -->
+        <div class="row g-4" th:if="${!cartItems.isEmpty()}">
+            <div class="col-lg-8">
+                <div class="glass-card p-4 table-responsive">
+                    <table class="table cart-table align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Sản phẩm</th>
+                                <th scope="col" class="text-center">Đơn giá</th>
+                                <th scope="col" class="text-center" style="width: 150px;">Số lượng</th>
+                                <th scope="col" class="text-center">Thành tiền</th>
+                                <th scope="col" class="text-center">Xóa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item : ${cartItems}">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img th:src="${item.sanPham.anhUrl != null ? (item.sanPham.anhUrl.startsWith('http') ? item.sanPham.anhUrl : '/uploads/' + item.sanPham.anhUrl) : 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=100'}"
+                                             class="rounded-3 me-3" alt="Product Image" style="width: 60px; height: 60px; object-fit: cover;">
+                                        <div>
+                                            <a th:href="@{/san-pham/{id}(id=${item.sanPham.id})}" class="fw-bold text-dark text-decoration-none" th:text="${item.sanPham.tenSanPham}"></a>
+                                            <div class="text-muted small" th:text="'Kho: ' + ${item.sanPham.soLuong} + ' chiếc'"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center" th:text="${#numbers.formatDecimal(item.sanPham.gia, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                                <td>
+                                    <div class="input-group justify-content-center mx-auto" style="max-width: 120px;">
+                                        <button class="btn btn-sm btn-outline-secondary btn-cart-minus px-2" type="button" th:data-product-id="${item.sanPham.id}">-</button>
+                                        <input type="text" class="form-control text-center px-1 cart-qty-input bg-white" 
+                                               th:value="${item.soLuong}" 
+                                               th:data-product-id="${item.sanPham.id}" 
+                                               th:data-max="${item.sanPham.soLuong}"
+                                               style="max-width: 50px;" readonly>
+                                        <button class="btn btn-sm btn-outline-secondary btn-cart-plus px-2" type="button" th:data-product-id="${item.sanPham.id}">+</button>
+                                    </div>
+                                </td>
+                                <td class="text-center fw-bold text-primary" th:id="'subtotal-' + ${item.sanPham.id}" th:text="${#numbers.formatDecimal(item.sanPham.gia * item.soLuong, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                                <td class="text-center">
+                                    <a href="javascript:void(0)" class="text-danger fs-5 btn-cart-remove" th:data-product-id="${item.sanPham.id}">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Cart Summary Sidebar -->
+            <div class="col-lg-4">
+                <div class="glass-card p-4">
+                    <h5 class="fw-bold mb-4 border-bottom pb-2 text-primary"><i class="fa-solid fa-receipt me-2"></i>Tóm tắt đơn hàng</h5>
+                    <div class="d-flex justify-content-between mb-3 fs-5">
+                        <span>Tổng tiền hàng:</span>
+                        <span id="cartTotal" class="fw-bold text-primary" th:text="${#numbers.formatDecimal(tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+                    </div>
+                    <p class="text-muted small mb-4">* Phí vận chuyển sẽ được tính toán chi tiết tại trang thanh toán.</p>
+                    <a th:href="@{/checkout}" class="btn btn-accent w-100 py-3 fs-6 fw-bold"><i class="fa-solid fa-credit-card me-2"></i>Tiến hành thanh toán</a>
+                    <a th:href="@{/}" class="btn btn-outline-dark w-100 py-2 mt-2"><i class="fa-solid fa-store me-2"></i>Tiếp tục mua hàng</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Toast Container -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
+        <div id="cartToast" class="toast align-items-center border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+            <div class="d-flex">
+                <div class="toast-body fw-semibold" id="cartToastBody">
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('vi-VN').format(amount) + ' ₫';
+            }
+
+            // Toast notification helper
+            function showToast(message, type) {
+                const toastEl = document.getElementById('cartToast');
+                const toastBody = document.getElementById('cartToastBody');
+                toastBody.innerHTML = '<i class="' + (type === 'success' ? 'fa-solid fa-circle-check me-2' : 'fa-solid fa-triangle-exclamation me-2') + '"></i>' + message;
+                toastEl.className = 'toast align-items-center border-0 shadow-lg text-white ' + (type === 'success' ? 'bg-success' : 'bg-danger');
+                const toast = new bootstrap.Toast(toastEl);
+                toast.show();
+            }
+
+            function updateCart(productId, newQty, inputEl) {
+                const formData = new URLSearchParams();
+                formData.append('productId', productId);
+                formData.append('quantity', newQty);
+
+                fetch('/api/cart/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData.toString()
+                })
+                .then(response => {
+                    if (response.status === 401) {
+                        window.location.href = '/login?error=login-required&redirect=/cart';
+                        return;
+                    }
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Update input value
+                        inputEl.value = data.quantity;
+                        
+                        // Update subtotal
+                        const subtotalEl = document.getElementById('subtotal-' + productId);
+                        if (subtotalEl) {
+                            subtotalEl.innerText = formatCurrency(data.itemSubtotal);
+                        }
+
+                        // Update cart total
+                        const cartTotalEl = document.getElementById('cartTotal');
+                        if (cartTotalEl) {
+                            cartTotalEl.innerText = formatCurrency(data.tongTien);
+                        }
+
+                        // Update header badge
+                        const badgeEl = document.getElementById('cartCountBadge');
+                        if (badgeEl) {
+                            badgeEl.innerText = data.cartSize;
+                        }
+                    } else {
+                        showToast(data.message || 'Có lỗi xảy ra khi cập nhật số lượng!', 'error');
+                        location.reload();
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('Không thể kết nối đến máy chủ!', 'error');
+                    location.reload();
+                });
+            }
+
+            // Minus button handler
+            document.querySelectorAll('.btn-cart-minus').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const productId = this.getAttribute('data-product-id');
+                    const inputEl = document.querySelector(`.cart-qty-input[data-product-id="${productId}"]`);
+                    if (inputEl) {
+                        let currentQty = parseInt(inputEl.value) || 1;
+                        if (currentQty > 1) {
+                            updateCart(productId, currentQty - 1, inputEl);
+                        }
+                    }
+                });
+            });
+
+            // Plus button handler
+            document.querySelectorAll('.btn-cart-plus').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const productId = this.getAttribute('data-product-id');
+                    const inputEl = document.querySelector(`.cart-qty-input[data-product-id="${productId}"]`);
+                    if (inputEl) {
+                        let currentQty = parseInt(inputEl.value) || 1;
+                        const maxQty = parseInt(inputEl.getAttribute('data-max')) || 999;
+                        if (currentQty < maxQty) {
+                            updateCart(productId, currentQty + 1, inputEl);
+                        } else {
+                            showToast('Số lượng đạt giới hạn tối đa trong kho!', 'error');
+                        }
+                    }
+                });
+            });
+
+            // Remove button handler - use event delegation to handle clicks on child <i> elements
+            document.querySelectorAll('.btn-cart-remove').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Use closest() to ensure we get the correct element with data-product-id
+                    const removeBtn = e.target.closest('.btn-cart-remove');
+                    if (!removeBtn) return;
+                    const productId = removeBtn.getAttribute('data-product-id');
+                    if (!productId) return;
+                    
+                    if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+                        const rowEl = removeBtn.closest('tr');
+                        
+                        const formData = new URLSearchParams();
+                        formData.append('productId', productId);
+
+                        fetch('/api/cart/remove', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: formData.toString()
+                        })
+                        .then(response => {
+                            if (response.status === 401) {
+                                window.location.href = '/login?error=login-required&redirect=/cart';
+                                return;
+                            }
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data && data.success) {
+                                if (data.isEmpty) {
+                                    showToast('Đã xóa sản phẩm. Giỏ hàng trống!', 'success');
+                                    setTimeout(() => location.reload(), 1000);
+                                } else {
+                                    if (rowEl) {
+                                        rowEl.style.transition = 'opacity 0.3s ease';
+                                        rowEl.style.opacity = '0';
+                                        setTimeout(() => rowEl.remove(), 300);
+                                    }
+                                    
+                                    const cartTotalEl = document.getElementById('cartTotal');
+                                    if (cartTotalEl) {
+                                        cartTotalEl.innerText = formatCurrency(data.tongTien);
+                                    }
+
+                                    const badgeEl = document.getElementById('cartCountBadge');
+                                    if (badgeEl) {
+                                        badgeEl.innerText = data.cartSize;
+                                    }
+
+                                    showToast('Đã xóa sản phẩm khỏi giỏ hàng thành công!', 'success');
+                                }
+                            } else {
+                                showToast((data && data.message) || 'Có lỗi xảy ra khi xóa sản phẩm!', 'error');
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            showToast('Không thể kết nối đến máy chủ!', 'error');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
