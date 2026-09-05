@@ -5,6 +5,9 @@ import com.web.app.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,18 +39,11 @@ public class DonHangService {
 
     @Transactional
     public DonHang createOrder(Integer khachHangId, String hoTenNhan, String soDienThoaiNhan, String diaChiNhan, String ghiChu) {
-        return createOrder(khachHangId, hoTenNhan, soDienThoaiNhan, diaChiNhan, ghiChu, null, "COD");
+        return createOrder(khachHangId, hoTenNhan, soDienThoaiNhan, diaChiNhan, ghiChu, null);
     }
 
     @Transactional
-    public DonHang createOrder(
-            Integer khachHangId,
-            String hoTenNhan,
-            String soDienThoaiNhan,
-            String diaChiNhan,
-            String ghiChu,
-            String couponCode,
-            String paymentMethod)  {
+    public DonHang createOrder(Integer khachHangId, String hoTenNhan, String soDienThoaiNhan, String diaChiNhan, String ghiChu, String couponCode) {
         List<ChiTietGioHang> cartItems = gioHangService.getCartDetails(khachHangId);
         if (cartItems.isEmpty()) {
             throw new IllegalArgumentException("Giỏ hàng của bạn đang trống!");
@@ -96,15 +92,6 @@ public class DonHangService {
                 .ghiChu(ghiChu)
                 .khuyenMai(khuyenMai)
                 .soTienGiam(soTienGiam)
-
-                .phuongThucThanhToan(paymentMethod)
-
-                .trangThaiThanhToan(
-                        "QR".equals(paymentMethod)
-                                ? "CHO_XAC_NHAN"
-                                : "CHUA_THANH_TOAN"
-                )
-
                 .build();
 
         DonHang savedOrder = donHangRepository.save(donHang);
@@ -139,6 +126,14 @@ public class DonHangService {
 
     public List<DonHang> getAllOrders() {
         return donHangRepository.findAllByOrderByNgayDatDesc();
+    }
+
+    public Page<DonHang> getFilteredOrders(String keyword, String status, LocalDateTime fromDate,
+                                           LocalDateTime toDate, int page, int size) {
+        String cleanKeyword = keyword == null || keyword.trim().isEmpty() ? null : keyword.trim();
+        String cleanStatus = status == null || status.trim().isEmpty() ? null : status.trim();
+        return donHangRepository.filterOrders(cleanKeyword, cleanStatus, fromDate, toDate,
+                PageRequest.of(page, size, Sort.by("ngayDat").descending()));
     }
 
     public Optional<DonHang> findById(Integer id) {
@@ -199,5 +194,4 @@ public class DonHangService {
         dh.setTrangThai(newStatus);
         donHangRepository.save(dh);
     }
-    /// thêm thanh toán bằng pe
 }

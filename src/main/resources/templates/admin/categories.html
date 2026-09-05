@@ -1,75 +1,55 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: html_head('Quản lý danh mục')}"></head>
-<body class="d-flex flex-column min-vh-100">
-    <div th:replace="~{fragments/header :: navbar}"></div>
+<body class="admin-dashboard admin-categories d-flex flex-column min-vh-100">
+<div th:replace="~{fragments/header :: navbar}"></div>
+<main class="dashboard-shell container-fluid flex-grow-1">
+    <nav class="admin-tabs" aria-label="Điều hướng quản trị">
+        <a th:href="@{/admin/dashboard}" class="admin-tab"><i class="fa-solid fa-chart-line"></i><span>Tổng quan</span></a>
+        <a th:href="@{/admin/products}" class="admin-tab"><i class="fa-solid fa-hat-cowboy"></i><span>Sản phẩm</span></a>
+        <a th:href="@{/admin/categories}" class="admin-tab active" aria-current="page"><i class="fa-solid fa-layer-group"></i><span>Danh mục</span></a>
+        <a th:href="@{/admin/brands}" class="admin-tab"><i class="fa-regular fa-copyright"></i><span>Thương hiệu</span></a>
+        <a th:href="@{/admin/orders}" class="admin-tab"><i class="fa-solid fa-receipt"></i><span>Đơn hàng</span></a>
+        <a th:href="@{/admin/customers}" class="admin-tab"><i class="fa-regular fa-user"></i><span>Khách hàng</span></a>
+        <a th:href="@{/admin/coupons}" class="admin-tab"><i class="fa-solid fa-ticket"></i><span>Mã giảm giá</span></a>
+    </nav>
 
-    <main class="container my-5 flex-grow-1">
-        <h3 class="fw-bold mb-4"><i class="fa-solid fa-list text-primary me-2"></i>Quản lý danh mục loại mũ</h3>
+    <header class="category-heading"><p class="eyebrow mb-2">PHÂN LOẠI SẢN PHẨM</p><h1>Quản lý danh mục loại mũ</h1><p class="heading-copy mb-0">Tổ chức danh mục để khách hàng tìm sản phẩm nhanh hơn.</p></header>
+    <div th:if="${successMessage}" class="product-alert success" role="alert"><i class="fa-solid fa-circle-check"></i><span th:text="${successMessage}"></span></div>
+    <div th:if="${errorMessage}" class="product-alert error" role="alert"><i class="fa-solid fa-triangle-exclamation"></i><span th:text="${errorMessage}"></span></div>
 
-        <!-- Alerts -->
-        <div th:if="${successMessage}" class="alert alert-success border-0 rounded-3 shadow-sm py-3 mb-4" role="alert">
-            <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
-        </div>
-        <div th:if="${errorMessage}" class="alert alert-danger border-0 rounded-3 shadow-sm py-3 mb-4" role="alert">
-            <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
-        </div>
-
-        <div class="row g-4">
-            <!-- Left Pane: Categories List & Rename Forms -->
-            <div class="col-md-8">
-                <div class="glass-card p-4">
-                    <h5 class="fw-bold mb-3 text-dark">Danh sách danh mục hiện có</h5>
-                    
-                    <div class="table-responsive">
-                        <table class="table align-middle">
-                            <thead>
-                                <tr>
-                                    <th style="width: 80px;" class="text-center">Mã ID</th>
-                                    <th>Tên danh mục</th>
-                                    <th class="text-center" style="width: 280px;">Cập nhật / Xóa</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="cat : ${categories}">
-                                    <td class="text-center fw-bold" th:text="${cat.id}"></td>
-                                    <td>
-                                        <!-- Inline edit form for each category -->
-                                        <form th:action="@{/admin/categories/edit/{id}(id=${cat.id})}" method="post" class="d-flex gap-2">
-                                            <input type="text" name="tenDanhMuc" class="form-control form-control-sm" th:value="${cat.tenDanhMuc}" required>
-                                            <button type="submit" class="btn btn-sm btn-outline-success"><i class="fa-solid fa-check"></i> Lưu</button>
-                                        </form>
-                                    </td>
-                                    <td class="text-center">
-                                        <a th:href="@{/admin/categories/delete/{id}(id=${cat.id})}" 
-                                           class="btn btn-sm btn-outline-danger" 
-                                           onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này? Tất cả liên kết sản phẩm cần được gỡ bỏ.')">
-                                            <i class="fa-solid fa-trash-can me-1"></i>Xóa danh mục
-                                        </a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+    <div class="row g-3 g-xl-4 align-items-start">
+        <div class="col-lg-8">
+            <section class="dashboard-card category-list-card">
+                <div class="card-heading category-card-heading"><div><p class="card-kicker">DANH SÁCH</p><h3>Danh mục hiện có</h3></div><span class="category-count"><span th:text="${#lists.size(categories)}">0</span> danh mục</span></div>
+                <div class="category-scroll" th:unless="${#lists.isEmpty(categories)}">
+                    <table class="category-table"><thead><tr><th>ID</th><th>Tên danh mục</th><th>Thao tác</th></tr></thead><tbody>
+                    <tr th:each="cat:${categories}">
+                        <td data-label="ID"><span class="category-id" th:text="${'#'+cat.id}"></span></td>
+                        <td data-label="Tên danh mục"><form th:action="@{/admin/categories/edit/{id}(id=${cat.id})}" method="post" class="category-edit-form"><input type="text" name="tenDanhMuc" class="category-input" th:value="${cat.tenDanhMuc}" th:data-original="${cat.tenDanhMuc}" required maxlength="100" aria-label="Tên danh mục"><button type="submit" class="save-category-btn" disabled title="Thay đổi tên để bật nút lưu"><i class="fa-solid fa-check"></i><span>Lưu</span></button></form></td>
+                        <td data-label="Thao tác"><a th:href="@{/admin/categories/delete/{id}(id=${cat.id})}" class="delete-category-btn" onclick="return confirm('Bạn chắc chắn muốn xóa danh mục này? Nếu danh mục đang có sản phẩm liên kết, thao tác sẽ không thể thực hiện.')"><i class="fa-regular fa-trash-can"></i><span>Xóa danh mục</span></a></td>
+                    </tr></tbody></table>
                 </div>
-            </div>
-
-            <!-- Right Pane: Add New Category -->
-            <div class="col-md-4">
-                <div class="glass-card p-4">
-                    <h5 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-folder-plus me-2"></i>Thêm danh mục mới</h5>
-                    <form th:action="@{/admin/categories/create}" method="post" th:object="${newCategory}">
-                        <div class="mb-4">
-                            <label for="newCatName" class="form-label">Tên danh mục mới *</label>
-                            <input type="text" th:field="*{tenDanhMuc}" id="newCatName" class="form-control" required placeholder="Ví dụ: Mũ Bucket, Snapback...">
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 py-2"><i class="fa-solid fa-plus me-2"></i>Thêm danh mục</button>
-                    </form>
-                </div>
-            </div>
+                <div class="empty-state compact" th:if="${#lists.isEmpty(categories)}"><div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div><h4>Chưa có danh mục nào</h4><p>Hãy tạo danh mục đầu tiên bằng biểu mẫu bên cạnh.</p></div>
+            </section>
         </div>
-    </main>
-
-    <div th:replace="~{fragments/footer :: footer}"></div>
-</body>
-</html>
+        <div class="col-lg-4">
+            <aside class="dashboard-card add-category-card">
+                <div class="add-category-icon"><i class="fa-solid fa-folder-plus"></i></div><p class="card-kicker">TẠO MỚI</p><h3>Thêm danh mục mới</h3><p class="add-category-copy">Tên ngắn gọn, dễ hiểu sẽ giúp quản lý và tìm kiếm hiệu quả hơn.</p>
+                <form th:action="@{/admin/categories/create}" method="post" th:object="${newCategory}" id="addCategoryForm" novalidate>
+                    <label for="newCatName" class="category-label">Tên danh mục <span aria-hidden="true">*</span></label>
+                    <input type="text" th:field="*{tenDanhMuc}" th:value="${newCategoryName}" id="newCatName" class="category-input add-category-input" required maxlength="100" placeholder="Ví dụ: Mũ Bucket, Snapback..." autocomplete="off" th:attr="aria-invalid=${categoryError!=null}">
+                    <p id="categoryClientError" class="field-error" aria-live="polite" th:text="${categoryError}"></p>
+                    <button type="submit" class="add-category-btn"><span class="button-default"><i class="fa-solid fa-plus"></i> Thêm danh mục</span><span class="button-loading"><i class="fa-solid fa-spinner fa-spin"></i> Đang thêm...</span></button>
+                </form>
+            </aside>
+        </div>
+    </div>
+</main>
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script th:inline="javascript">
+const existingNames=/*[[${categories.![tenDanhMuc]}]]*/[];
+document.querySelectorAll('.category-edit-form').forEach(form=>{const input=form.querySelector('input'),button=form.querySelector('button');const sync=()=>{const changed=input.value.trim()!==input.dataset.original.trim()&&input.value.trim().length>0;button.disabled=!changed;button.title=changed?'Lưu thay đổi':'Thay đổi tên để bật nút lưu';};input.addEventListener('input',sync);form.addEventListener('submit',event=>{if(!input.value.trim()){event.preventDefault();input.focus();}});});
+const addForm=document.getElementById('addCategoryForm'),nameInput=document.getElementById('newCatName'),error=document.getElementById('categoryClientError');addForm.addEventListener('submit',event=>{const value=nameInput.value.trim(),duplicate=existingNames.some(name=>name.trim().toLocaleLowerCase('vi')===value.toLocaleLowerCase('vi'));error.textContent='';nameInput.setAttribute('aria-invalid','false');if(!value||duplicate){event.preventDefault();error.textContent=!value?'Vui lòng nhập tên danh mục.':'Tên danh mục này đã tồn tại.';nameInput.setAttribute('aria-invalid','true');nameInput.focus();return;}nameInput.value=value;addForm.classList.add('is-loading');addForm.querySelector('button').disabled=true;});
+</script>
+</body></html>

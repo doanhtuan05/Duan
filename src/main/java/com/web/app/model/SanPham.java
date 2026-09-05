@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class SanPham {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -38,28 +37,6 @@ public class SanPham {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "thuong_hieu_id")
     private ThuongHieu thuongHieu;
-
-    // =================== Thuộc tính mũ ===================
-
-    @Column(name = "kieu_dang", columnDefinition = "NVARCHAR(100)")
-    private String kieuDang;
-
-    @Column(name = "chu_vi_vong_dau", columnDefinition = "NVARCHAR(50)")
-    private String chuViVongDau;
-
-    @Column(name = "chat_lieu", columnDefinition = "NVARCHAR(100)")
-    private String chatLieu;
-
-    @Column(name = "mau_sac", columnDefinition = "NVARCHAR(100)")
-    private String mauSac;
-
-    @Column(name = "doi_tuong", columnDefinition = "NVARCHAR(100)")
-    private String doiTuong;
-
-    @Column(name = "do_tuoi", columnDefinition = "NVARCHAR(100)")
-    private String doTuoi;
-
-    // ================================================
 
     @Column(name = "ngay_tao")
     private LocalDateTime ngayTao;

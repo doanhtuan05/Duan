@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: html_head(${coupon.id == null ? 'Thêm mã giảm giá' : 'Cập nhật mã giảm giá'})}"></head>
-<body class="d-flex flex-column min-vh-100">
+<body class="admin-dashboard admin-coupon-form d-flex flex-column min-vh-100">
     <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <nav class="admin-tabs dashboard-shell coupon-form-tabs" aria-label="Điều hướng quản trị"><a th:href="@{/admin/dashboard}" class="admin-tab"><i class="fa-solid fa-chart-line"></i><span>Tổng quan</span></a><a th:href="@{/admin/products}" class="admin-tab"><i class="fa-solid fa-hat-cowboy"></i><span>Sản phẩm</span></a><a th:href="@{/admin/categories}" class="admin-tab"><i class="fa-solid fa-layer-group"></i><span>Danh mục</span></a><a th:href="@{/admin/brands}" class="admin-tab"><i class="fa-regular fa-copyright"></i><span>Thương hiệu</span></a><a th:href="@{/admin/orders}" class="admin-tab"><i class="fa-solid fa-receipt"></i><span>Đơn hàng</span></a><a th:href="@{/admin/customers}" class="admin-tab"><i class="fa-regular fa-user"></i><span>Khách hàng</span></a><a th:href="@{/admin/coupons}" class="admin-tab active" aria-current="page"><i class="fa-solid fa-ticket"></i><span>Mã giảm giá</span></a></nav>
 
     <main class="container my-5 flex-grow-1">
         <div class="row justify-content-center">
@@ -125,6 +127,15 @@
             const discountUnit = document.getElementById('discount-unit');
             const maxDiscountWrapper = document.getElementById('max-discount-wrapper');
             const giaTriGiamToiDa = document.getElementById('giaTriGiamToiDa');
+            const codeInput = document.getElementById('maCode');
+            const form = codeInput.closest('form');
+            if (!codeInput.readOnly) {
+                const randomButton = document.createElement('button');
+                randomButton.type = 'button'; randomButton.className = 'random-code-btn';
+                randomButton.innerHTML = '<i class="fa-solid fa-shuffle"></i> Tạo mã';
+                randomButton.addEventListener('click', () => { codeInput.value = 'HATS' + Math.random().toString(36).slice(2, 8).toUpperCase(); codeInput.focus(); });
+                codeInput.insertAdjacentElement('afterend', randomButton);
+            }
 
             function updateUI() {
                 if (loaiGiamGia.value === 'PERCENTAGE') {
@@ -141,6 +152,15 @@
 
             loaiGiamGia.addEventListener('change', updateUI);
             updateUI(); // Run once on load
+            form.addEventListener('submit', function(event) {
+                const start = document.getElementById('ngayBatDau').value;
+                const end = document.getElementById('ngayKetThuc').value;
+                const value = Number(document.getElementById('giaTriGiam').value);
+                if ((start && end && end <= start) || value <= 0 || (loaiGiamGia.value === 'PERCENTAGE' && value > 100)) {
+                    event.preventDefault();
+                    alert(start && end && end <= start ? 'Ngày kết thúc phải sau ngày bắt đầu.' : 'Giá trị giảm không hợp lệ; phần trăm phải từ 1 đến 100.');
+                }
+            });
         });
     </script>
 </body>

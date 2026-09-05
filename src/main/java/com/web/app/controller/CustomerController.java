@@ -268,7 +268,6 @@ public class CustomerController {
                                   @RequestParam("diaChiNhan") String diaChiNhan,
                                   @RequestParam(value = "ghiChu", required = false) String ghiChu,
                                   @RequestParam(value = "couponCode", required = false) String couponCode,
-                                  @RequestParam("paymentMethod") String paymentMethod,
                                   HttpSession session,
                                   RedirectAttributes redirectAttributes) {
         KhachHang kh = getSessionCustomer(session);
@@ -276,19 +275,8 @@ public class CustomerController {
             return "redirect:/login?error=login-required&redirect=/checkout";
         }
         try {
-            DonHang order = donHangService.createOrder(kh.getId(),
-                    hoTenNhan,
-                    soDienThoaiNhan,
-                    diaChiNhan, ghiChu, couponCode,
-                    paymentMethod);
-            if ("QR".equals(paymentMethod)) {
-                return "redirect:/payment/qr/" + order.getId();
-            }
-
-            redirectAttributes.addFlashAttribute(
-                    "successMessage",
-                    "Đặt hàng thành công! Mã đơn hàng của bạn là #" + order.getId());
-
+            DonHang order = donHangService.createOrder(kh.getId(), hoTenNhan, soDienThoaiNhan, diaChiNhan, ghiChu, couponCode);
+            redirectAttributes.addFlashAttribute("successMessage", "Đặt hàng thành công! Mã đơn hàng của bạn là #" + order.getId());
             return "redirect:/orders";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -355,33 +343,6 @@ public class CustomerController {
 
         return ResponseEntity.ok(response);
     }
-
-    @GetMapping("/payment/qr/{id}")
-    public String showQrPayment(@PathVariable Integer id,
-                                HttpSession session,
-                                Model model) {
-
-        KhachHang kh = getSessionCustomer(session);
-
-        if (kh == null) {
-            return "redirect:/login";
-        }
-
-        DonHang order = donHangService.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng"));
-        String qrUrl =
-                "https://api.vietqr.io/image/970436-1049308173-compact2.jpg"
-                        + "?amount=" + order.getTongTien().intValue()
-                        + "&addInfo=DH" + order.getId()
-                        + "&accountName=DO%20ANH%20TUAN";
-
-        model.addAttribute("qrUrl", qrUrl);
-
-        model.addAttribute("order", order);
-
-        return "payment-qr";
-    }
-
 
     @GetMapping("/orders")
     public String orderHistory(HttpSession session, Model model) {

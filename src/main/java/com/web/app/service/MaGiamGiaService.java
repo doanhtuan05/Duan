@@ -31,6 +31,16 @@ public class MaGiamGiaService {
         if (ma.getMaCode() != null) {
             ma.setMaCode(ma.getMaCode().trim().toUpperCase());
         }
+        if (ma.getMaCode() == null || ma.getMaCode().isEmpty()) throw new IllegalArgumentException("Mã giảm giá không được để trống.");
+        if (!ma.getMaCode().matches("[A-Z0-9_-]+")) throw new IllegalArgumentException("Mã chỉ được chứa chữ cái, số, dấu gạch ngang hoặc gạch dưới.");
+        if (ma.getGiaTriGiam() == null || ma.getGiaTriGiam() <= 0) throw new IllegalArgumentException("Giá trị giảm phải lớn hơn 0.");
+        if ("PERCENTAGE".equals(ma.getLoaiGiamGia()) && ma.getGiaTriGiam() > 100) throw new IllegalArgumentException("Giá trị phần trăm không được vượt quá 100%.");
+        if (!"PERCENTAGE".equals(ma.getLoaiGiamGia()) && !"FIXED_AMOUNT".equals(ma.getLoaiGiamGia())) throw new IllegalArgumentException("Loại giảm giá không hợp lệ.");
+        if (ma.getGiaTriToiThieu() != null && ma.getGiaTriToiThieu() < 0) throw new IllegalArgumentException("Giá trị đơn tối thiểu không được âm.");
+        if (ma.getNgayBatDau() != null && ma.getNgayKetThuc() != null && !ma.getNgayKetThuc().isAfter(ma.getNgayBatDau())) throw new IllegalArgumentException("Ngày kết thúc phải sau ngày bắt đầu.");
+        if (ma.getSoLuong() != null && ma.getSoLuong() < 1) throw new IllegalArgumentException("Giới hạn lượt dùng phải lớn hơn 0.");
+        if (ma.getId() != null) repository.findById(ma.getId()).ifPresent(existing -> ma.setSoLuongDaDung(existing.getSoLuongDaDung()));
+        if (ma.getSoLuongDaDung() == null) ma.setSoLuongDaDung(0);
         return repository.save(ma);
     }
 

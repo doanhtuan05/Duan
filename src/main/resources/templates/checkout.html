@@ -88,36 +88,6 @@
                             <span class="fw-bold">Thành tiền:</span>
                             <span class="fw-bold text-primary" id="finalTotal" th:text="${#numbers.formatDecimal(tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
                         </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">
-                                <i class="fa-solid fa-wallet me-2"></i>Phương thức thanh toán
-                            </label>
-
-                            <div class="form-check">
-                                <input class="form-check-input"
-                                       type="radio"
-                                       name="paymentMethod"
-                                       id="cod"
-                                       value="COD"
-                                       checked>
-
-                                <label class="form-check-label" for="cod">
-                                    Thanh toán khi nhận hàng (COD)
-                                </label>
-                            </div>
-
-                            <div class="form-check mt-2">
-                                <input class="form-check-input"
-                                       type="radio"
-                                       name="paymentMethod"
-                                       id="qr"
-                                       value="QR">
-
-                                <label class="form-check-label" for="qr">
-                                    Thanh toán bằng mã QR
-                                </label>
-                            </div>
-                        </div>
 
                         <button type="submit" class="btn btn-accent w-100 py-3 fs-5 fw-bold"><i class="fa-solid fa-circle-check me-2"></i>Xác nhận đặt hàng</button>
                         <a th:href="@{/cart}" class="btn btn-outline-dark w-100 py-2 mt-2"><i class="fa-solid fa-angle-left me-2"></i>Quay lại giỏ hàng</a>

@@ -1,37 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <th:block th:replace="~{fragments/header :: html_head(${product.tenSanPham})}"></th:block>
-
-    <style>
-
-        .variant-btn{
-            min-width:110px;
-            margin-right:10px;
-            margin-bottom:10px;
-            border-radius:10px;
-            font-weight:600;
-        }
-
-        .variant-btn.active{
-            background:#198754;
-            color:white;
-            border-color:#198754;
-        }
-
-        .color-circle{
-            width:18px;
-            height:18px;
-            border-radius:50%;
-            display:inline-block;
-            margin-right:8px;
-            border:1px solid #ccc;
-            vertical-align:middle;
-        }
-
-    </style>
-
-</head>
+<head th:replace="~{fragments/header :: html_head(${product.tenSanPham})}"></head>
 <body class="d-flex flex-column min-vh-100">
     <div th:replace="~{fragments/header :: navbar}"></div>
 
@@ -64,89 +33,11 @@
                         </div>
                         <h2 class="fw-bold mb-3" th:text="${product.tenSanPham}"></h2>
                         <h3 class="text-primary fw-bold mb-4" th:text="${#numbers.formatDecimal(product.gia, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></h3>
-
+                        
                         <hr class="my-4">
-
-                        <h5 class="fw-bold mb-3">Thông tin sản phẩm</h5>
-
-                        <!-- Thông tin sản phẩm -->
-                        <table class="table table-borderless align-middle mb-4">
-
-                            <tr>
-                                <td width="35%"><strong>Thương hiệu</strong></td>
-                                <td th:text="${product.thuongHieu.tenThuongHieu}"></td>
-                            </tr>
-
-                            <tr>
-                                <td><strong>Kiểu dáng</strong></td>
-                                <td th:text="${product.kieuDang}"></td>
-                            </tr>
-
-                            <tr>
-                                <td><strong>Chất liệu</strong></td>
-                                <td th:text="${product.chatLieu}"></td>
-                            </tr>
-
-                            <tr>
-                                <td><strong>Đối tượng</strong></td>
-                                <td th:text="${product.doiTuong}"></td>
-                            </tr>
-
-                            <tr>
-                                <td><strong>Độ tuổi</strong></td>
-                                <td th:text="${product.doTuoi}"></td>
-                            </tr>
-
-                        </table>
-
-                        <!-- Màu sắc -->
-                        <div class="mb-4">
-
-                            <h6 class="fw-bold mb-3">
-                                Màu sắc
-                            </h6>
-
-                            <button
-                                    type="button"
-                                    class="btn btn-outline-success variant-btn active"
-                                    disabled>
-
-        <span class="color-circle"
-              style="background:black;"></span>
-
-                                <span th:text="${product.mauSac}"></span>
-
-                            </button>
-
-                        </div>
-
-                        <!-- Chu vi vòng đầu -->
-                        <div class="mb-4">
-
-                            <h6 class="fw-bold mb-3">
-                                Chu vi vòng đầu
-                            </h6>
-
-                            <button
-                                    type="button"
-                                    class="btn btn-outline-success variant-btn active"
-                                    disabled>
-
-                                <span th:text="${product.chuViVongDau}"></span>
-
-                            </button>
-
-                        </div>
-
-                        <hr>
-
+                        
                         <h5 class="fw-bold mb-2">Mô tả sản phẩm</h5>
-
-                        <p class="text-muted mb-4"
-                           th:text="${product.moTa != null && !product.moTa.isBlank()
-   ? product.moTa
-   : 'Chưa có mô tả cho sản phẩm này.'}">
-                        </p>
+                        <p class="text-muted mb-4" th:text="${product.moTa != null && !product.moTa.isBlank() ? product.moTa : 'Chưa có mô tả cho sản phẩm này.'}"></p>
 
                         <!-- Stock Status -->
                         <div class="mb-4">

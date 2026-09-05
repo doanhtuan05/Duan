@@ -1,57 +1,47 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: html_head('Quản lý đơn hàng')}"></head>
-<body class="d-flex flex-column min-vh-100">
-    <div th:replace="~{fragments/header :: navbar}"></div>
+<body class="admin-dashboard admin-orders d-flex flex-column min-vh-100">
+<div th:replace="~{fragments/header :: navbar}"></div>
+<main class="dashboard-shell container-fluid flex-grow-1">
+    <nav class="admin-tabs" aria-label="Điều hướng quản trị">
+        <a th:href="@{/admin/dashboard}" class="admin-tab"><i class="fa-solid fa-chart-line"></i><span>Tổng quan</span></a>
+        <a th:href="@{/admin/products}" class="admin-tab"><i class="fa-solid fa-hat-cowboy"></i><span>Sản phẩm</span></a>
+        <a th:href="@{/admin/categories}" class="admin-tab"><i class="fa-solid fa-layer-group"></i><span>Danh mục</span></a>
+        <a th:href="@{/admin/brands}" class="admin-tab"><i class="fa-regular fa-copyright"></i><span>Thương hiệu</span></a>
+        <a th:href="@{/admin/orders}" class="admin-tab active" aria-current="page"><i class="fa-solid fa-receipt"></i><span>Đơn hàng</span></a>
+        <a th:href="@{/admin/customers}" class="admin-tab"><i class="fa-regular fa-user"></i><span>Khách hàng</span></a>
+        <a th:href="@{/admin/coupons}" class="admin-tab"><i class="fa-solid fa-ticket"></i><span>Mã giảm giá</span></a>
+    </nav>
 
-    <main class="container my-5 flex-grow-1">
-        <h3 class="fw-bold mb-4"><i class="fa-solid fa-receipt text-primary me-2"></i>Quản lý đơn đặt hàng</h3>
+    <header class="orders-heading"><div><p class="eyebrow mb-2">VẬN HÀNH</p><h1>Quản lý đơn đặt hàng</h1><p class="heading-copy mb-0"><span th:text="${#numbers.formatInteger(totalItems,0,'COMMA')}">0</span> đơn hàng được tìm thấy</p></div></header>
 
-        <!-- Orders Table -->
-        <div class="glass-card p-4 table-responsive">
-            <table class="table align-middle">
-                <thead>
-                    <tr>
-                        <th class="text-center" style="width: 100px;">Mã đơn</th>
-                        <th>Khách hàng</th>
-                        <th>Ngày đặt hàng</th>
-                        <th>Người nhận hàng</th>
-                        <th class="text-center">Trạng thái</th>
-                        <th class="text-end">Tổng tiền</th>
-                        <th class="text-center">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="order : ${orders}">
-                        <td class="text-center fw-bold" th:text="'#' + ${order.id}"></td>
-                        <td>
-                            <div class="fw-bold text-dark" th:text="${order.khachHang.hoTen}"></div>
-                            <div class="text-muted small" th:text="'Account: ' + ${order.khachHang.taiKhoan.tenDangNhap}"></div>
-                        </td>
-                        <td th:text="${#temporals.format(order.ngayDat, 'dd/MM/yyyy HH:mm')}"></td>
-                        <td>
-                            <div class="fw-bold" th:text="${order.hoTenNhan}"></div>
-                            <div class="text-muted small" th:text="${order.soDienThoaiNhan}"></div>
-                        </td>
-                        <td class="text-center">
-                            <span th:if="${order.trangThai == 'PENDING'}" class="badge bg-warning text-dark badge-premium">Chờ xử lý</span>
-                            <span th:if="${order.trangThai == 'CONFIRMED'}" class="badge bg-info text-dark badge-premium">Đã xác nhận</span>
-                            <span th:if="${order.trangThai == 'SHIPPING'}" class="badge bg-primary text-white badge-premium">Đang giao</span>
-                            <span th:if="${order.trangThai == 'DELIVERED'}" class="badge bg-success text-white badge-premium">Đã giao</span>
-                            <span th:if="${order.trangThai == 'CANCELLED'}" class="badge bg-secondary text-white badge-premium">Đã hủy</span>
-                        </td>
-                        <td class="text-end fw-bold text-primary" th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
-                        <td class="text-center">
-                            <a th:href="@{/admin/orders/{id}(id=${order.id})}" class="btn btn-sm btn-outline-dark px-3 rounded-3">
-                                <i class="fa-solid fa-receipt me-1"></i>Chi tiết
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </main>
+    <section class="dashboard-card order-filter-card">
+        <form th:action="@{/admin/orders}" method="get" class="order-filters">
+            <div class="filter-search order-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" name="keyword" th:value="${keyword}" placeholder="Mã đơn hoặc tên khách hàng..." aria-label="Tìm đơn hàng"></div>
+            <select name="status" aria-label="Lọc theo trạng thái"><option value="">Tất cả trạng thái</option><option value="PENDING" th:selected="${status=='PENDING'}">Đang xử lý</option><option value="CONFIRMED" th:selected="${status=='CONFIRMED'}">Đã xác nhận</option><option value="SHIPPING" th:selected="${status=='SHIPPING'}">Đang giao</option><option value="DELIVERED" th:selected="${status=='DELIVERED'}">Đã giao</option><option value="CANCELLED" th:selected="${status=='CANCELLED'}">Đã hủy</option></select>
+            <label class="date-filter"><span>Từ ngày</span><input type="date" name="fromDate" th:value="${fromDate}" aria-label="Từ ngày"></label>
+            <label class="date-filter"><span>Đến ngày</span><input type="date" name="toDate" th:value="${toDate}" aria-label="Đến ngày"></label>
+            <button type="submit" class="filter-btn" title="Áp dụng bộ lọc"><i class="fa-solid fa-filter"></i><span>Lọc</span></button>
+            <a th:href="@{/admin/orders}" class="reset-btn" title="Xóa toàn bộ bộ lọc" aria-label="Xóa toàn bộ bộ lọc"><i class="fa-solid fa-rotate-left"></i></a>
+        </form>
+    </section>
 
-    <div th:replace="~{fragments/footer :: footer}"></div>
-</body>
-</html>
+    <section class="dashboard-card orders-table-card" th:unless="${#lists.isEmpty(orders)}">
+        <div class="orders-table-wrap"><table class="orders-table"><thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Ngày đặt hàng</th><th>Người nhận hàng</th><th>Trạng thái</th><th>Tổng tiền</th><th><span class="visually-hidden">Thao tác</span></th></tr></thead><tbody>
+        <tr th:each="order:${orders}">
+            <td data-label="Mã đơn"><a class="order-code" th:href="@{/admin/orders/{id}(id=${order.id})}" th:text="${'#'+order.id}">#0</a></td>
+            <td data-label="Khách hàng"><div class="customer-cell"><strong th:text="${order.khachHang!=null?order.khachHang.hoTen:'Khách vãng lai'}"></strong><span class="account-badge" th:if="${order.khachHang!=null and order.khachHang.taiKhoan!=null}"><i class="fa-regular fa-user"></i><span th:text="${order.khachHang.taiKhoan.tenDangNhap}"></span></span></div></td>
+            <td data-label="Ngày đặt"><time class="order-date" th:datetime="${order.ngayDat}" th:text="${#temporals.format(order.ngayDat,'dd/MM/yyyy HH:mm')}"></time></td>
+            <td data-label="Người nhận"><div class="recipient-cell"><strong th:text="${order.hoTenNhan}"></strong><small th:text="${order.soDienThoaiNhan}"></small></div></td>
+            <td data-label="Trạng thái"><span class="order-status" th:classappend="${' status-'+#strings.toLowerCase(order.trangThai)}"><i class="fa-solid fa-circle"></i><span th:switch="${order.trangThai}"><span th:case="'PENDING'">Đang xử lý</span><span th:case="'CONFIRMED'">Đã xác nhận</span><span th:case="'SHIPPING'">Đang giao</span><span th:case="'DELIVERED'">Đã giao</span><span th:case="'CANCELLED'">Đã hủy</span><span th:case="*" th:text="${order.trangThai}"></span></span></span></td>
+            <td data-label="Tổng tiền" class="order-total" th:text="${#numbers.formatDecimal(order.tongTien,0,'COMMA',0,'POINT')}+' ₫'"></td>
+            <td data-label="Thao tác"><a th:href="@{/admin/orders/{id}(id=${order.id})}" class="order-detail-btn" th:aria-label="${'Xem chi tiết đơn hàng '+order.id}"><i class="fa-regular fa-eye"></i><span>Chi tiết</span></a></td>
+        </tr></tbody></table></div>
+        <nav class="products-pagination" th:if="${totalPages>1}" aria-label="Phân trang đơn hàng"><a class="page-control" th:classappend="${currentPage==0}?' disabled'" th:href="@{/admin/orders(keyword=${keyword},status=${status},fromDate=${fromDate},toDate=${toDate},page=${currentPage-1})}" aria-label="Trang trước"><i class="fa-solid fa-angle-left"></i></a><a class="page-control" th:each="i:${#numbers.sequence(0,totalPages-1)}" th:classappend="${currentPage==i}?' active'" th:href="@{/admin/orders(keyword=${keyword},status=${status},fromDate=${fromDate},toDate=${toDate},page=${i})}" th:text="${i+1}" th:aria-current="${currentPage==i}?'page':null"></a><a class="page-control" th:classappend="${currentPage==totalPages-1}?' disabled'" th:href="@{/admin/orders(keyword=${keyword},status=${status},fromDate=${fromDate},toDate=${toDate},page=${currentPage+1})}" aria-label="Trang sau"><i class="fa-solid fa-angle-right"></i></a></nav>
+    </section>
+
+    <section class="dashboard-card empty-state orders-empty" th:if="${#lists.isEmpty(orders)}"><div class="empty-icon"><i class="fa-solid fa-receipt"></i></div><h4>Không tìm thấy đơn hàng</h4><p>Thử thay đổi trạng thái, từ khóa hoặc khoảng ngày tìm kiếm.</p><a th:href="@{/admin/orders}" class="empty-reset">Xóa bộ lọc</a></section>
+</main>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body></html>
