@@ -1,97 +1,79 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/header :: html_head(${product.id == null} ? 'Thêm sản phẩm mới' : 'Sửa sản phẩm')}"></head>
-<body class="d-flex flex-column min-vh-100">
-    <div th:replace="~{fragments/header :: navbar}"></div>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: html_head(${product.id == null ? 'Thêm sản phẩm mới' : 'Chỉnh sửa sản phẩm'})}"></head>
+<body class="admin-dashboard admin-product-form d-flex flex-column min-vh-100">
+<div th:replace="~{fragments/header :: navbar}"></div>
+<main class="dashboard-shell container-fluid flex-grow-1">
+  <nav class="admin-tabs" aria-label="Điều hướng quản trị">
+    <a th:href="@{/admin/dashboard}" class="admin-tab"><i class="fa-solid fa-chart-line"></i><span>Tổng quan</span></a>
+    <a th:href="@{/admin/products}" class="admin-tab active" aria-current="page"><i class="fa-solid fa-hat-cowboy"></i><span>Sản phẩm</span></a>
+    <a th:href="@{/admin/categories}" class="admin-tab"><i class="fa-solid fa-layer-group"></i><span>Danh mục</span></a>
+    <a th:href="@{/admin/brands}" class="admin-tab"><i class="fa-regular fa-copyright"></i><span>Thương hiệu</span></a>
+    <a th:href="@{/admin/orders}" class="admin-tab"><i class="fa-solid fa-receipt"></i><span>Đơn hàng</span></a>
+    <a th:href="@{/admin/customers}" class="admin-tab"><i class="fa-regular fa-user"></i><span>Khách hàng</span></a>
+    <a th:href="@{/admin/coupons}" class="admin-tab"><i class="fa-solid fa-ticket"></i><span>Mã giảm giá</span></a>
+  </nav>
 
-    <main class="container my-5 flex-grow-1" style="max-width: 800px;">
-        <!-- Breadcrumbs -->
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a th:href="@{/admin/dashboard}">Admin</a></li>
-                <li class="breadcrumb-item"><a th:href="@{/admin/products}">Sản phẩm</a></li>
-                <li class="breadcrumb-item active" aria-current="page" th:text="${product.id == null} ? 'Thêm mới' : 'Chỉnh sửa #' + ${product.id}"></li>
-            </ol>
-        </nav>
-
-        <!-- Product form card -->
-        <div class="glass-card p-5">
-            <h3 class="fw-bold mb-4 text-dark">
-                <i class="fa-solid fa-file-pen text-primary me-2"></i>
-                <span th:text="${product.id == null} ? 'Thêm sản phẩm mới' : 'Chỉnh sửa sản phẩm'"></span>
-            </h3>
-
-            <!-- Feedback Alerts -->
-            <div th:if="${errorMessage}" class="alert alert-danger border-0 rounded-3 shadow-sm py-3 mb-4" role="alert">
-                <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
-            </div>
-
-            <!-- Form action handles creation / update dynamic endpoints -->
-            <form th:action="${product.id == null} ? @{/admin/products/create} : @{/admin/products/edit/{id}(id=${product.id})}" 
-                  method="post" enctype="multipart/form-data" th:object="${product}">
-                
-                <input type="hidden" th:field="*{id}" th:if="${product.id != null}">
-
-                <div class="mb-3">
-                    <label for="tenSanPham" class="form-label">Tên sản phẩm *</label>
-                    <input type="text" th:field="*{tenSanPham}" id="tenSanPham" class="form-control" required placeholder="Nhập tên mũ thời trang...">
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="danhMuc" class="form-label">Danh mục loại mũ *</label>
-                        <select th:field="*{danhMuc}" id="danhMuc" class="form-select" required>
-                            <option value="">Chọn danh mục...</option>
-                            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.tenDanhMuc}"></option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="thuongHieu" class="form-label">Thương hiệu *</label>
-                        <select th:field="*{thuongHieu}" id="thuongHieu" class="form-select" required>
-                            <option value="">Chọn thương hiệu...</option>
-                            <option th:each="br : ${brands}" th:value="${br.id}" th:text="${br.tenThuongHieu}"></option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="gia" class="form-label">Giá bán (₫) *</label>
-                        <input type="number" th:field="*{gia}" id="gia" class="form-control" required min="0" step="1000" placeholder="Giá bán...">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="soLuong" class="form-label">Số lượng nhập kho *</label>
-                        <input type="number" th:field="*{soLuong}" id="soLuong" class="form-control" required min="0" placeholder="Số lượng tồn kho...">
-                    </div>
-                </div>
-
-                <!-- Product Image Upload Section -->
-                <div class="mb-3">
-                    <label for="imageFile" class="form-label">Hình ảnh sản phẩm</label>
-                    <input type="file" name="imageFile" id="imageFile" class="form-control" accept="image/*">
-                    <div class="form-text">Để trống nếu muốn giữ nguyên ảnh hiện tại hoặc sử dụng ảnh mặc định.</div>
-                    
-                    <!-- Display current image thumbnail if editing -->
-                    <div th:if="${product.anhUrl != null}" class="mt-3">
-                        <label class="d-block form-label text-muted small">Hình ảnh hiện tại:</label>
-                        <img th:src="${product.anhUrl.startsWith('http') ? product.anhUrl : '/uploads/' + product.anhUrl}" 
-                             class="rounded-3 border" style="width: 120px; height: 120px; object-fit: cover;" alt="Current Image">
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="moTa" class="form-label">Mô tả chi tiết</label>
-                    <textarea th:field="*{moTa}" id="moTa" class="form-control" rows="4" placeholder="Viết mô tả chất liệu, kiểu dáng, số đo vòng đầu của mũ..."></textarea>
-                </div>
-
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary px-4 py-2"><i class="fa-solid fa-floppy-disk me-2"></i>Lưu lại</button>
-                    <a th:href="@{/admin/products}" class="btn btn-outline-secondary px-4 py-2"><i class="fa-solid fa-xmark me-2"></i>Hủy bỏ</a>
-                </div>
-            </form>
+  <nav class="product-form-breadcrumb" aria-label="Breadcrumb"><a th:href="@{/admin/dashboard}">Admin</a><i class="fa-solid fa-chevron-right"></i><a th:href="@{/admin/products}">Sản phẩm</a><i class="fa-solid fa-chevron-right"></i><span th:text="${product.id == null ? 'Thêm mới' : 'Chỉnh sửa #' + product.id}"></span></nav>
+  <section class="product-form-card">
+    <header class="form-heading"><div><p class="eyebrow">KHO HÀNG</p><h1 th:text="${product.id == null ? 'Thêm sản phẩm mới' : 'Chỉnh sửa sản phẩm'}"></h1><p>Thiết lập thông tin, tồn kho và biến thể cho sản phẩm.</p></div><i class="fa-solid fa-box-open heading-icon"></i></header>
+    <div th:if="${errorMessage}" class="product-alert error"><i class="fa-solid fa-triangle-exclamation"></i><span th:text="${errorMessage}"></span></div>
+    <form id="productForm" th:action="${product.id == null} ? @{/admin/products/create} : @{/admin/products/edit/{id}(id=${product.id})}" method="post" enctype="multipart/form-data" th:object="${product}" novalidate>
+      <input type="hidden" th:field="*{id}" th:if="${product.id != null}">
+      <div class="form-section">
+        <h2>Thông tin cơ bản</h2>
+        <div class="form-grid">
+          <div class="field field-full"><label for="tenSanPham">Tên sản phẩm <b>*</b></label><input th:field="*{tenSanPham}" id="tenSanPham" required maxlength="150" placeholder="Ví dụ: Mũ lưỡi trai Heritage86"><small class="field-error"></small></div>
+          <div class="field"><label for="danhMuc">Danh mục loại mũ <b>*</b></label><select th:field="*{danhMuc}" id="danhMuc" required><option value="">Chọn danh mục</option><option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.tenDanhMuc}"></option></select><small class="field-error"></small></div>
+          <div class="field"><label for="thuongHieu">Thương hiệu <b>*</b></label><select th:field="*{thuongHieu}" id="thuongHieu" required><option value="">Chọn thương hiệu</option><option th:each="brand : ${brands}" th:value="${brand.id}" th:text="${brand.tenThuongHieu}"></option></select><small class="field-error"></small></div>
+          <div class="field"><label for="giaDisplay">Giá bán (₫) <b>*</b></label><input type="hidden" th:field="*{gia}" id="gia"><input type="text" inputmode="numeric" id="giaDisplay" data-target="gia" min="1" required placeholder="350,000"><small class="field-hint">Nhập số dương, ví dụ: 350,000</small><small class="field-error"></small></div>
+          <div class="field"><label for="soLuongDisplay">Số lượng nhập kho <b>*</b></label><input type="hidden" th:field="*{soLuong}" id="soLuong"><input type="text" inputmode="numeric" id="soLuongDisplay" data-target="soLuong" min="0" required placeholder="50"><small class="field-hint">Tổng kho sẽ tự đồng bộ khi có biến thể.</small><small class="field-error"></small></div>
         </div>
-    </main>
-
-    <div th:replace="~{fragments/footer :: footer}"></div>
-</body>
-</html>
+      </div>
+      <div class="form-section variants-section">
+        <div class="section-title"><div><h2>Biến thể sản phẩm</h2><p>Màu sắc, kích cỡ, giá và tồn kho riêng cho từng biến thể.</p></div><button type="button" class="add-variant-btn" id="addVariant"><i class="fa-solid fa-plus"></i> Thêm biến thể</button></div>
+        <div class="variant-head"><span>Màu sắc</span><span>Kích cỡ</span><span>SKU</span><span>Giá riêng</span><span>Tồn kho</span><span></span></div>
+        <div id="variantRows">
+          <div class="variant-row" th:each="v : ${product.bienThe}"><input type="hidden" name="variantId" th:value="${v.id}"><input name="variantColor" th:value="${v.mauSac}" required placeholder="Đen"><input name="variantSize" th:value="${v.kichCo}" required placeholder="M / XL"><input name="variantSku" th:value="${v.sku}" placeholder="HAT-BLK-M"><input type="number" name="variantPrice" th:value="${v.gia}" min="1" step="1000" required placeholder="350000"><input type="number" name="variantStock" th:value="${v.soLuong}" min="0" required placeholder="10"><button type="button" class="remove-variant" aria-label="Xóa biến thể"><i class="fa-solid fa-trash-can"></i></button></div>
+        </div>
+        <p class="empty-variant" id="emptyVariant">Chưa có biến thể. Sản phẩm sẽ dùng giá và kho mặc định ở trên.</p>
+      </div>
+      <div class="form-section">
+        <h2>Hình ảnh sản phẩm</h2>
+        <input type="file" name="imageFile" id="imageFile" accept="image/*" multiple hidden>
+        <div class="image-dropzone" id="imageDropzone" tabindex="0" role="button" aria-label="Chọn ảnh sản phẩm"><i class="fa-regular fa-images"></i><strong>Kéo thả ảnh vào đây hoặc <span>chọn tệp</span></strong><small>PNG, JPG, WEBP · Tối đa 5 MB mỗi ảnh</small></div>
+        <div id="imagePreviews" class="image-previews"></div>
+        <input type="hidden" name="removeImage" id="removeImage" value="false">
+        <div th:if="${product.anhUrl != null}" class="current-image" id="currentImage"><span>Ảnh đại diện hiện tại</span><div class="current-image-wrap"><img th:src="${product.anhUrl.startsWith('http') ? product.anhUrl : '/uploads/' + product.anhUrl}" alt="Ảnh hiện tại"><button type="button" id="removeCurrentImage"><i class="fa-solid fa-trash-can"></i> Xóa ảnh này</button></div></div>
+      </div>
+      <div class="form-section">
+        <h2>Mô tả chi tiết</h2>
+        <div class="editor-toolbar" role="toolbar"><button type="button" data-command="bold" title="In đậm"><b>B</b></button><button type="button" data-command="italic" title="In nghiêng"><i>I</i></button><button type="button" data-command="insertUnorderedList" title="Danh sách"><i class="fa-solid fa-list-ul"></i></button></div>
+        <div id="descriptionEditor" class="description-editor" contenteditable="true" data-placeholder="Mô tả chất liệu, kiểu dáng và điểm nổi bật của sản phẩm..."></div>
+        <textarea th:field="*{moTa}" id="moTa" hidden></textarea>
+      </div>
+      <footer class="form-actions"><a th:href="@{/admin/products}" id="cancelButton" class="cancel-btn">Hủy bỏ</a><button type="submit" id="saveButton" class="save-btn"><i class="fa-solid fa-floppy-disk"></i><span>Lưu lại</span></button></footer>
+    </form>
+  </section>
+</main>
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script>
+(() => {
+ const form=document.getElementById('productForm'), rows=document.getElementById('variantRows'), empty=document.getElementById('emptyVariant'), editor=document.getElementById('descriptionEditor'), textarea=document.getElementById('moTa'), fileInput=document.getElementById('imageFile'), previews=document.getElementById('imagePreviews'); let dirty=false, selected=[];
+ document.querySelectorAll('[data-target]').forEach(display=>{const hidden=document.getElementById(display.dataset.target),format=()=>{const digits=display.value.replace(/\D/g,'');hidden.value=digits;display.value=digits?new Intl.NumberFormat('en-US').format(digits):''};display.value=hidden.value?new Intl.NumberFormat('en-US').format(Number(hidden.value)):'';display.addEventListener('input',format)});
+ editor.innerHTML=textarea.value || ''; editor.addEventListener('input',()=>{textarea.value=editor.innerHTML;dirty=true});
+ const row=()=>'<div class="variant-row"><input type="hidden" name="variantId"><input name="variantColor" required placeholder="Đen"><input name="variantSize" required placeholder="M / XL"><input name="variantSku" placeholder="HAT-BLK-M"><input type="number" name="variantPrice" min="1" step="1000" required placeholder="350000"><input type="number" name="variantStock" min="0" required placeholder="10"><button type="button" class="remove-variant" aria-label="Xóa biến thể"><i class="fa-solid fa-trash-can"></i></button></div>';
+ const syncEmpty=()=>empty.hidden=rows.children.length>0; syncEmpty();
+ document.getElementById('addVariant').onclick=()=>{rows.insertAdjacentHTML('beforeend',row());syncEmpty();dirty=true};
+ rows.addEventListener('click',e=>{const button=e.target.closest('.remove-variant');if(button){button.closest('.variant-row').remove();syncEmpty();dirty=true}});
+ document.querySelectorAll('.editor-toolbar button').forEach(b=>b.onclick=()=>{document.execCommand(b.dataset.command,false,null);editor.focus();textarea.value=editor.innerHTML;dirty=true});
+ const render=()=>{previews.innerHTML='';selected.forEach((file,i)=>{const url=URL.createObjectURL(file),el=document.createElement('figure');el.innerHTML='<img src="'+url+'" alt="Ảnh xem trước"><button type="button" aria-label="Xóa ảnh">&times;</button>';el.querySelector('button').onclick=()=>{selected.splice(i,1);render()};previews.append(el)})};
+ const choose=files=>{selected=[...files].filter(f=>f.type.startsWith('image/')&&f.size<=5*1024*1024);render();dirty=true};
+ document.getElementById('imageDropzone').onclick=()=>fileInput.click(); document.getElementById('imageDropzone').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fileInput.click()}};fileInput.onchange=e=>choose(e.target.files);
+ const zone=document.getElementById('imageDropzone');['dragenter','dragover'].forEach(x=>zone.addEventListener(x,e=>{e.preventDefault();zone.classList.add('dragging')}));['dragleave','drop'].forEach(x=>zone.addEventListener(x,e=>{e.preventDefault();zone.classList.remove('dragging')}));zone.addEventListener('drop',e=>choose(e.dataTransfer.files));
+ document.getElementById('removeCurrentImage')?.addEventListener('click',()=>{document.getElementById('removeImage').value='true';document.getElementById('currentImage').hidden=true;dirty=true});
+ form.addEventListener('input',()=>dirty=true); form.addEventListener('submit',e=>{let valid=true; form.querySelectorAll('[required]').forEach(input=>{const error=input.parentElement.querySelector('.field-error');if(!input.value || !input.checkValidity()){valid=false;input.classList.add('invalid');if(error)error.textContent=input.validationMessage||'Vui lòng nhập trường này'}else{input.classList.remove('invalid');if(error)error.textContent=''}});if(!valid){e.preventDefault();form.querySelector('.invalid')?.focus();return} textarea.value=editor.innerHTML;const button=document.getElementById('saveButton');button.disabled=true;button.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i><span>Đang lưu...</span>'});
+ document.getElementById('cancelButton').onclick=e=>{if(dirty&&!confirm('Bạn có thay đổi chưa lưu. Bạn có muốn hủy không?'))e.preventDefault()};
+})();
+</script>
+</body></html>

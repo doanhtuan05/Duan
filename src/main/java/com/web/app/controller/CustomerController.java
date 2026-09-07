@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import org.springframework.http.ResponseEntity;
+import com.web.app.repository.BienTheSanPhamRepository;
 
 @Controller
 public class CustomerController {
@@ -38,6 +39,9 @@ public class CustomerController {
 
     @Autowired
     private MaGiamGiaService maGiamGiaService;
+
+    @Autowired
+    private BienTheSanPhamRepository bienTheSanPhamRepository;
 
     // Helper to get logged-in customer from session
     private KhachHang getSessionCustomer(HttpSession session) {
@@ -81,6 +85,7 @@ public class CustomerController {
         SanPham sp = sanPhamService.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại!"));
         model.addAttribute("product", sp);
+        model.addAttribute("variants", bienTheSanPhamRepository.findBySanPhamIdOrderByMauSacAscKichCoAsc(id));
         return "product_detail";
     }
 
@@ -93,7 +98,7 @@ public class CustomerController {
         List<ChiTietGioHang> items = gioHangService.getCartDetails(kh.getId());
         
         double tongTien = items.stream()
-                .mapToDouble(item -> item.getSanPham().getGia() * item.getSoLuong())
+                .mapToDouble(item -> item.getDonGia() * item.getSoLuong())
                 .sum();
 
         model.addAttribute("cartItems", items);
@@ -103,6 +108,7 @@ public class CustomerController {
 
     @PostMapping("/cart/add")
     public String addToCart(@RequestParam("productId") Integer productId,
+                            @RequestParam(value = "variantId", required = false) Integer variantId,
                             @RequestParam(value = "quantity", defaultValue = "1") int quantity,
                             HttpSession session,
                             RedirectAttributes redirectAttributes) {
@@ -111,7 +117,7 @@ public class CustomerController {
             return "redirect:/login?error=login-required&redirect=/cart";
         }
         try {
-            gioHangService.addToCart(kh.getId(), productId, quantity);
+            gioHangService.addToCart(kh.getId(), productId, variantId, quantity);
             redirectAttributes.addFlashAttribute("successMessage", "Đã thêm sản phẩm vào giỏ hàng thành công!");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -129,7 +135,7 @@ public class CustomerController {
             return "redirect:/login?error=login-required&redirect=/cart";
         }
         try {
-            gioHangService.updateCartItemQuantity(kh.getId(), productId, quantity);
+            gioHangService.updateCartItemQuantityById(kh.getId(), productId, quantity);
             redirectAttributes.addFlashAttribute("successMessage", "Cập nhật giỏ hàng thành công!");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -150,19 +156,19 @@ public class CustomerController {
             return ResponseEntity.status(401).body(err);
         }
         try {
-            gioHangService.updateCartItemQuantity(kh.getId(), productId, quantity);
+            gioHangService.updateCartItemQuantityById(kh.getId(), productId, quantity);
             
             List<ChiTietGioHang> items = gioHangService.getCartDetails(kh.getId());
             double tongTien = items.stream()
-                    .mapToDouble(item -> item.getSanPham().getGia() * item.getSoLuong())
+                    .mapToDouble(item -> item.getDonGia() * item.getSoLuong())
                     .sum();
             int cartSize = items.stream()
                     .mapToInt(item -> item.getSoLuong())
                     .sum();
             
             double itemSubtotal = items.stream()
-                    .filter(item -> item.getSanPham().getId().equals(productId))
-                    .mapToDouble(item -> item.getSanPham().getGia() * item.getSoLuong())
+                    .filter(item -> item.getId().equals(productId))
+                    .mapToDouble(item -> item.getDonGia() * item.getSoLuong())
                     .findFirst()
                     .orElse(0.0);
             
@@ -193,11 +199,11 @@ public class CustomerController {
             return ResponseEntity.status(401).body(err);
         }
         try {
-            gioHangService.removeCartItem(kh.getId(), productId);
+            gioHangService.removeCartItemById(kh.getId(), productId);
             
             List<ChiTietGioHang> items = gioHangService.getCartDetails(kh.getId());
             double tongTien = items.stream()
-                    .mapToDouble(item -> item.getSanPham().getGia() * item.getSoLuong())
+                    .mapToDouble(item -> item.getDonGia() * item.getSoLuong())
                     .sum();
             int cartSize = items.stream()
                     .mapToInt(item -> item.getSoLuong())
@@ -248,7 +254,7 @@ public class CustomerController {
         }
 
         double tongTien = items.stream()
-                .mapToDouble(item -> item.getSanPham().getGia() * item.getSoLuong())
+                .mapToDouble(item -> item.getDonGia() * item.getSoLuong())
                 .sum();
 
         model.addAttribute("cartItems", items);
@@ -307,7 +313,7 @@ public class CustomerController {
             }
 
             double tongTien = items.stream()
-                    .mapToDouble(item -> item.getSanPham().getGia() * item.getSoLuong())
+                    .mapToDouble(item -> item.getDonGia() * item.getSoLuong())
                     .sum();
 
             if (couponCode == null || couponCode.trim().isEmpty()) {

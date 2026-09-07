@@ -35,13 +35,14 @@
     <section class="dashboard-card products-table-card" th:unless="${#lists.isEmpty(products)}">
         <div class="products-table-wrap">
             <table class="products-table">
-                <thead><tr><th>Sản phẩm</th><th>Danh mục</th><th>Thương hiệu</th><th>Đơn giá</th><th>Tồn kho</th><th><span class="visually-hidden">Thao tác</span></th></tr></thead>
+                <thead><tr><th>Sản phẩm</th><th>Danh mục</th><th>Thương hiệu</th><th>Đơn giá</th><th>Tồn kho</th><th>Đang giao</th><th><span class="visually-hidden">Thao tác</span></th></tr></thead>
                 <tbody><tr th:each="sp:${products}">
                     <td data-label="Sản phẩm"><div class="product-identity"><img th:src="${sp.anhUrl!=null and !#strings.isEmpty(sp.anhUrl)?(sp.anhUrl.startsWith('http')?sp.anhUrl:'/uploads/'+sp.anhUrl):'/images/hat-placeholder.svg'}" src="/images/hat-placeholder.svg" th:alt="${'Ảnh '+sp.tenSanPham}" onerror="this.onerror=null;this.src='/images/hat-placeholder.svg'"><div><strong th:text="${sp.tenSanPham}"></strong><small th:text="${'#'+sp.id}"></small></div></div></td>
                     <td data-label="Danh mục" th:text="${sp.danhMuc!=null?sp.danhMuc.tenDanhMuc:'Chưa phân loại'}"></td>
                     <td data-label="Thương hiệu" th:text="${sp.thuongHieu!=null?sp.thuongHieu.tenThuongHieu:'Chưa có'}"></td>
                     <td data-label="Đơn giá" class="product-price" th:text="${#numbers.formatDecimal(sp.gia,0,'COMMA',0,'POINT')}+' ₫'"></td>
                     <td data-label="Tồn kho"><span class="stock-badge" th:classappend="${sp.soLuong<5}?' stock-danger':(${sp.soLuong<10}?' stock-warning':' stock-ok')"><i class="fa-solid fa-circle"></i><span th:text="${#numbers.formatInteger(sp.soLuong,0,'COMMA')}+' chiếc'"></span></span></td>
+                    <td data-label="Đang giao"><span class="stock-badge stock-warning"><i class="fa-solid fa-truck"></i><span th:text="${shippingQuantities[sp.id]} + ' chiếc'"></span></span></td>
                     <td data-label="Thao tác"><div class="product-actions"><a th:href="@{/admin/products/edit/{id}(id=${sp.id})}" class="edit-btn" th:aria-label="${'Sửa '+sp.tenSanPham}" title="Sửa sản phẩm"><i class="fa-solid fa-pen"></i><span>Sửa</span></a><a th:href="@{/admin/products/delete/{id}(id=${sp.id})}" class="delete-btn" th:aria-label="${'Xóa '+sp.tenSanPham}" title="Xóa sản phẩm" onclick="return confirm('Bạn chắc chắn muốn xóa sản phẩm này? Hành động này không thể hoàn tác.')"><i class="fa-regular fa-trash-can"></i><span>Xóa</span></a></div></td>
                 </tr></tbody>
             </table>

@@ -29,6 +29,9 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private KhachHangRepository khachHangRepository;
 
+    @Autowired
+    private BienTheSanPhamRepository bienTheSanPhamRepository;
+
     @Override
     public void run(String... args) throws Exception {
         // Init Admin Account
@@ -178,5 +181,18 @@ public class DataInitializer implements CommandLineRunner {
                     product.setAnhUrl("https://images.unsplash.com/photo-1534215754734-18e55d13e346?w=600");
                     sanPhamRepository.save(product);
                 });
+
+        // A product that has variants always exposes the sum of its variant stock.
+        sanPhamRepository.findAll().forEach(product -> {
+            List<BienTheSanPham> variants = bienTheSanPhamRepository
+                    .findBySanPhamIdOrderByMauSacAscKichCoAsc(product.getId());
+            if (!variants.isEmpty()) {
+                int totalStock = variants.stream().mapToInt(BienTheSanPham::getSoLuong).sum();
+                if (!Integer.valueOf(totalStock).equals(product.getSoLuong())) {
+                    product.setSoLuong(totalStock);
+                    sanPhamRepository.save(product);
+                }
+            }
+        });
     }
 }

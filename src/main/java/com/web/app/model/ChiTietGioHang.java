@@ -22,6 +22,13 @@ public class ChiTietGioHang {
     @JoinColumn(name = "san_pham_id", nullable = false)
     private SanPham sanPham;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "bien_the_id")
+    private BienTheSanPham bienThe;
+
     @Column(name = "so_luong", nullable = false)
     private Integer soLuong;
+
+    public double getDonGia() { return bienThe != null ? bienThe.getGia() : sanPham.getGia(); }
+    public int getTonKho() { return bienThe != null ? bienThe.getSoLuong() : sanPham.getSoLuong(); }
 }

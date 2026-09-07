@@ -56,10 +56,10 @@ public class DonHangService {
         // Validate stock and calculate total
         for (ChiTietGioHang item : cartItems) {
             SanPham sp = item.getSanPham();
-            if (sp.getSoLuong() < item.getSoLuong()) {
+            if (item.getTonKho() < item.getSoLuong()) {
                 throw new IllegalArgumentException("Sản phẩm '" + sp.getTenSanPham() + "' không đủ số lượng trong kho!");
             }
-            tongTien += sp.getGia() * item.getSoLuong();
+            tongTien += item.getDonGia() * item.getSoLuong();
         }
 
         MaGiamGia khuyenMai = null;
@@ -104,14 +104,22 @@ public class DonHangService {
             ChiTietDonHang ctdh = ChiTietDonHang.builder()
                     .donHang(savedOrder)
                     .sanPham(sp)
+                    .bienThe(item.getBienThe())
                     .soLuong(item.getSoLuong())
-                    .giaBan(sp.getGia())
+                    .giaBan(item.getDonGia())
                     .build();
             chiTietDonHangRepository.save(ctdh);
 
             // Deduct stock
-            sp.setSoLuong(sp.getSoLuong() - item.getSoLuong());
-            sanPhamRepository.save(sp);
+            if (item.getBienThe() != null) {
+                BienTheSanPham variant = item.getBienThe();
+                variant.setSoLuong(variant.getSoLuong() - item.getSoLuong());
+                sp.setSoLuong(sp.getSoLuong() - item.getSoLuong());
+                sanPhamRepository.save(sp);
+            } else {
+                sp.setSoLuong(sp.getSoLuong() - item.getSoLuong());
+                sanPhamRepository.save(sp);
+            }
         }
 
         // Clear cart
@@ -159,8 +167,12 @@ public class DonHangService {
             List<ChiTietDonHang> details = chiTietDonHangRepository.findByDonHangId(orderId);
             for (ChiTietDonHang detail : details) {
                 SanPham sp = detail.getSanPham();
-                sp.setSoLuong(sp.getSoLuong() + detail.getSoLuong());
-                sanPhamRepository.save(sp);
+                if (detail.getBienThe() != null) {
+                    detail.getBienThe().setSoLuong(detail.getBienThe().getSoLuong() + detail.getSoLuong());
+                    sp.setSoLuong(sp.getSoLuong() + detail.getSoLuong());
+                    sanPhamRepository.save(sp);
+                }
+                else { sp.setSoLuong(sp.getSoLuong() + detail.getSoLuong()); sanPhamRepository.save(sp); }
             }
             if (dh.getKhuyenMai() != null) {
                 MaGiamGia km = dh.getKhuyenMai();
@@ -175,11 +187,16 @@ public class DonHangService {
             List<ChiTietDonHang> details = chiTietDonHangRepository.findByDonHangId(orderId);
             for (ChiTietDonHang detail : details) {
                 SanPham sp = detail.getSanPham();
-                if (sp.getSoLuong() < detail.getSoLuong()) {
+                int stock = detail.getBienThe() != null ? detail.getBienThe().getSoLuong() : sp.getSoLuong();
+                if (stock < detail.getSoLuong()) {
                     throw new IllegalArgumentException("Không thể khôi phục đơn hàng vì sản phẩm '" + sp.getTenSanPham() + "' không đủ hàng tồn kho!");
                 }
-                sp.setSoLuong(sp.getSoLuong() - detail.getSoLuong());
-                sanPhamRepository.save(sp);
+                if (detail.getBienThe() != null) {
+                    detail.getBienThe().setSoLuong(stock - detail.getSoLuong());
+                    sp.setSoLuong(sp.getSoLuong() - detail.getSoLuong());
+                    sanPhamRepository.save(sp);
+                }
+                else { sp.setSoLuong(stock - detail.getSoLuong()); sanPhamRepository.save(sp); }
             }
             if (dh.getKhuyenMai() != null) {
                 MaGiamGia km = dh.getKhuyenMai();

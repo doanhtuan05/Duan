@@ -25,6 +25,13 @@ import java.util.stream.Stream;
 import com.web.app.dto.KhachHangAdminDTO;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import com.web.app.repository.BienTheSanPhamRepository;
+import com.web.app.repository.ChiTietDonHangRepository;
+import com.web.app.repository.ChiTietGioHangRepository;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 @Controller
 @RequestMapping("/admin")
@@ -50,6 +57,15 @@ public class AdminController {
 
     @Autowired
     private MaGiamGiaService maGiamGiaService;
+
+    @Autowired
+    private BienTheSanPhamRepository bienTheSanPhamRepository;
+
+    @Autowired
+    private ChiTietDonHangRepository chiTietDonHangRepository;
+
+    @Autowired
+    private ChiTietGioHangRepository chiTietGioHangRepository;
 
     // 1. Dashboard & Statistics
     @GetMapping({"", "/dashboard"})
@@ -98,6 +114,10 @@ public class AdminController {
                                Model model) {
         Page<SanPham> prodPage = sanPhamService.getFilteredProducts(keyword, categoryId, brandId, null, null, page, size);
         model.addAttribute("products", prodPage.getContent());
+        Map<Integer, Long> shippingQuantities = new HashMap<>();
+        prodPage.getContent().forEach(product -> shippingQuantities.put(product.getId(),
+                chiTietDonHangRepository.sumShippingQuantityByProductId(product.getId())));
+        model.addAttribute("shippingQuantities", shippingQuantities);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", prodPage.getTotalPages());
         model.addAttribute("totalItems", prodPage.getTotalElements());
@@ -120,6 +140,12 @@ public class AdminController {
     @PostMapping("/products/create")
     public String createProduct(@ModelAttribute SanPham sp,
                                 @RequestParam("imageFile") MultipartFile file,
+                                @RequestParam(value = "variantId", required = false) List<Integer> variantIds,
+                                @RequestParam(value = "variantColor", required = false) List<String> variantColors,
+                                @RequestParam(value = "variantSize", required = false) List<String> variantSizes,
+                                @RequestParam(value = "variantSku", required = false) List<String> variantSkus,
+                                @RequestParam(value = "variantPrice", required = false) List<Double> variantPrices,
+                                @RequestParam(value = "variantStock", required = false) List<Integer> variantStocks,
                                 RedirectAttributes redirectAttributes) {
         try {
             if (!file.isEmpty()) {
@@ -129,6 +155,7 @@ public class AdminController {
                 sp.setAnhUrl(fileName);
             }
             sanPhamService.save(sp);
+            saveVariants(sp, variantIds, variantColors, variantSizes, variantSkus, variantPrices, variantStocks);
             redirectAttributes.addFlashAttribute("successMessage", "Thêm sản phẩm thành công!");
         } catch (IOException e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi tải ảnh lên: " + e.getMessage());
@@ -151,6 +178,13 @@ public class AdminController {
     public String editProduct(@PathVariable("id") Integer id,
                               @ModelAttribute SanPham sp,
                               @RequestParam("imageFile") MultipartFile file,
+                              @RequestParam(value = "removeImage", defaultValue = "false") boolean removeImage,
+                              @RequestParam(value = "variantId", required = false) List<Integer> variantIds,
+                              @RequestParam(value = "variantColor", required = false) List<String> variantColors,
+                              @RequestParam(value = "variantSize", required = false) List<String> variantSizes,
+                              @RequestParam(value = "variantSku", required = false) List<String> variantSkus,
+                              @RequestParam(value = "variantPrice", required = false) List<Double> variantPrices,
+                              @RequestParam(value = "variantStock", required = false) List<Integer> variantStocks,
                               RedirectAttributes redirectAttributes) {
         try {
             SanPham existing = sanPhamService.findById(id)
@@ -163,7 +197,9 @@ public class AdminController {
             existing.setDanhMuc(sp.getDanhMuc());
             existing.setThuongHieu(sp.getThuongHieu());
 
-            if (!file.isEmpty()) {
+            if (removeImage) {
+                existing.setAnhUrl(null);
+            } else if (!file.isEmpty()) {
                 String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
                 Path path = Paths.get("uploads/" + fileName);
                 Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
@@ -171,11 +207,46 @@ public class AdminController {
             }
 
             sanPhamService.save(existing);
+            saveVariants(existing, variantIds, variantColors, variantSizes, variantSkus, variantPrices, variantStocks);
             redirectAttributes.addFlashAttribute("successMessage", "Cập nhật sản phẩm thành công!");
         } catch (IOException e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi lưu ảnh sản phẩm!");
         }
         return "redirect:/admin/products";
+    }
+
+    private void saveVariants(SanPham product, List<Integer> ids, List<String> colors, List<String> sizes,
+                              List<String> skus, List<Double> prices, List<Integer> stocks) {
+        if (colors == null) return;
+        List<BienTheSanPham> existing = bienTheSanPhamRepository.findBySanPhamIdOrderByMauSacAscKichCoAsc(product.getId());
+        Set<Integer> keptIds = new HashSet<>();
+        for (int i = 0; i < colors.size(); i++) {
+            if (colors.get(i) == null || colors.get(i).isBlank()) continue;
+            Integer variantId = ids != null && ids.size() > i ? ids.get(i) : null;
+            BienTheSanPham variant = variantId == null
+                    ? BienTheSanPham.builder().sanPham(product).build()
+                    : bienTheSanPhamRepository.findById(variantId).orElseThrow(() -> new IllegalArgumentException("Biến thể không tồn tại!"));
+            if (variantId != null && !variant.getSanPham().getId().equals(product.getId()))
+                throw new IllegalArgumentException("Biến thể không thuộc sản phẩm này!");
+            variant.setMauSac(colors.get(i).trim());
+            variant.setKichCo(sizes.get(i).trim());
+            variant.setSku(skus.get(i).isBlank() ? null : skus.get(i).trim());
+            variant.setGia(prices.get(i));
+            variant.setSoLuong(stocks.get(i));
+            bienTheSanPhamRepository.save(variant);
+            keptIds.add(variant.getId());
+        }
+        for (BienTheSanPham variant : existing) {
+            if (!keptIds.contains(variant.getId())) {
+                if (chiTietDonHangRepository.existsByBienTheId(variant.getId()) || chiTietGioHangRepository.existsByBienTheId(variant.getId()))
+                    throw new IllegalArgumentException("Không thể xóa biến thể đã có trong đơn hàng hoặc giỏ hàng.");
+                bienTheSanPhamRepository.delete(variant);
+            }
+        }
+        int totalStock = bienTheSanPhamRepository.findBySanPhamIdOrderByMauSacAscKichCoAsc(product.getId()).stream()
+                .mapToInt(BienTheSanPham::getSoLuong).sum();
+        product.setSoLuong(totalStock);
+        sanPhamService.save(product);
     }
 
     @GetMapping("/products/delete/{id}")

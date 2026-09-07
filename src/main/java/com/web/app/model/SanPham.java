@@ -3,6 +3,8 @@ package com.web.app.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "SanPham")
@@ -40,6 +42,10 @@ public class SanPham {
 
     @Column(name = "ngay_tao")
     private LocalDateTime ngayTao;
+
+    @OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<BienTheSanPham> bienThe = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
