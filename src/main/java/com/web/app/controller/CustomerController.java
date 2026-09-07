@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import org.springframework.http.ResponseEntity;
+import com.web.app.repository.BienTheSanPhamRepository;
 
 @Controller
 public class CustomerController {
@@ -38,6 +39,9 @@ public class CustomerController {
 
     @Autowired
     private MaGiamGiaService maGiamGiaService;
+
+    @Autowired
+    private BienTheSanPhamRepository bienTheSanPhamRepository;
 
     // Helper to get logged-in customer from session
     private KhachHang getSessionCustomer(HttpSession session) {
@@ -81,6 +85,7 @@ public class CustomerController {
         SanPham sp = sanPhamService.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại!"));
         model.addAttribute("product", sp);
+        model.addAttribute("variants", bienTheSanPhamRepository.findBySanPhamIdOrderByMauSacAscKichCoAsc(id));
         return "product_detail";
     }
 
@@ -93,7 +98,7 @@ public class CustomerController {
         List<ChiTietGioHang> items = gioHangService.getCartDetails(kh.getId());
         
         double tongTien = items.stream()
-                .mapToDouble(item -> item.getSanPham().getGia() * item.getSoLuong())
+                .mapToDouble(item -> item.getDonGia() * item.getSoLuong())
                 .sum();
 
         model.addAttribute("cartItems", items);
@@ -103,6 +108,7 @@ public class CustomerController {
 
     @PostMapping("/cart/add")
     public String addToCart(@RequestParam("productId") Integer productId,
+                            @RequestParam(value = "variantId", required = false) Integer variantId,
                             @RequestParam(value = "quantity", defaultValue = "1") int quantity,
                             HttpSession session,
                             RedirectAttributes redirectAttributes) {
@@ -111,7 +117,7 @@ public class CustomerController {
             return "redirect:/login?error=login-required&redirect=/cart";
         }
         try {
-            gioHangService.addToCart(kh.getId(), productId, quantity);
+            gioHangService.addToCart(kh.getId(), productId, variantId, quantity);
             redirectAttributes.addFlashAttribute("successMessage", "Đã thêm sản phẩm vào giỏ hàng thành công!");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -129,7 +135,7 @@ public class CustomerController {
             return "redirect:/login?error=login-required&redirect=/cart";
         }
         try {
-            gioHangService.updateCartItemQuantity(kh.getId(), productId, quantity);
+            gioHangService.updateCartItemQuantityById(kh.getId(), productId, quantity);
             redirectAttributes.addFlashAttribute("successMessage", "Cập nhật giỏ hàng thành công!");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -150,19 +156,19 @@ public class CustomerController {
             return ResponseEntity.status(401).body(err);
         }
         try {
-            gioHangService.updateCartItemQuantity(kh.getId(), productId, quantity);
+            gioHangService.updateCartItemQuantityById(kh.getId(), productId, quantity);
             
             List<ChiTietGioHang> items = gioHangService.getCartDetails(kh.getId());
             double tongTien = items.stream()
-                    .mapToDouble(item -> item.getSanPham().getGia() * item.getSoLuong())
+                    .mapToDouble(item -> item.getDonGia() * item.getSoLuong())
                     .sum();
             int cartSize = items.stream()
                     .mapToInt(item -> item.getSoLuong())
                     .sum();
             
             double itemSubtotal = items.stream()
-                    .filter(item -> item.getSanPham().getId().equals(productId))
-                    .mapToDouble(item -> item.getSanPham().getGia() * item.getSoLuong())
+                    .filter(item -> item.getId().equals(productId))
+                    .mapToDouble(item -> item.getDonGia() * item.getSoLuong())
                     .findFirst()
                     .orElse(0.0);
             
@@ -193,11 +199,11 @@ public class CustomerController {
             return ResponseEntity.status(401).body(err);
         }
         try {
-            gioHangService.removeCartItem(kh.getId(), productId);
+            gioHangService.removeCartItemById(kh.getId(), productId);
             
             List<ChiTietGioHang> items = gioHangService.getCartDetails(kh.getId());
             double tongTien = items.stream()
-                    .mapToDouble(item -> item.getSanPham().getGia() * item.getSoLuong())
+                    .mapToDouble(item -> item.getDonGia() * item.getSoLuong())
                     .sum();
             int cartSize = items.stream()
                     .mapToInt(item -> item.getSoLuong())
@@ -248,7 +254,7 @@ public class CustomerController {
         }
 
         double tongTien = items.stream()
-                .mapToDouble(item -> item.getSanPham().getGia() * item.getSoLuong())
+                .mapToDouble(item -> item.getDonGia() * item.getSoLuong())
                 .sum();
 
         model.addAttribute("cartItems", items);
@@ -268,7 +274,6 @@ public class CustomerController {
                                   @RequestParam("diaChiNhan") String diaChiNhan,
                                   @RequestParam(value = "ghiChu", required = false) String ghiChu,
                                   @RequestParam(value = "couponCode", required = false) String couponCode,
-                                  @RequestParam("paymentMethod") String paymentMethod,
                                   HttpSession session,
                                   RedirectAttributes redirectAttributes) {
         KhachHang kh = getSessionCustomer(session);
@@ -276,19 +281,8 @@ public class CustomerController {
             return "redirect:/login?error=login-required&redirect=/checkout";
         }
         try {
-            DonHang order = donHangService.createOrder(kh.getId(),
-                    hoTenNhan,
-                    soDienThoaiNhan,
-                    diaChiNhan, ghiChu, couponCode,
-                    paymentMethod);
-            if ("QR".equals(paymentMethod)) {
-                return "redirect:/payment/qr/" + order.getId();
-            }
-
-            redirectAttributes.addFlashAttribute(
-                    "successMessage",
-                    "Đặt hàng thành công! Mã đơn hàng của bạn là #" + order.getId());
-
+            DonHang order = donHangService.createOrder(kh.getId(), hoTenNhan, soDienThoaiNhan, diaChiNhan, ghiChu, couponCode);
+            redirectAttributes.addFlashAttribute("successMessage", "Đặt hàng thành công! Mã đơn hàng của bạn là #" + order.getId());
             return "redirect:/orders";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -319,7 +313,7 @@ public class CustomerController {
             }
 
             double tongTien = items.stream()
-                    .mapToDouble(item -> item.getSanPham().getGia() * item.getSoLuong())
+                    .mapToDouble(item -> item.getDonGia() * item.getSoLuong())
                     .sum();
 
             if (couponCode == null || couponCode.trim().isEmpty()) {
@@ -355,33 +349,6 @@ public class CustomerController {
 
         return ResponseEntity.ok(response);
     }
-
-    @GetMapping("/payment/qr/{id}")
-    public String showQrPayment(@PathVariable Integer id,
-                                HttpSession session,
-                                Model model) {
-
-        KhachHang kh = getSessionCustomer(session);
-
-        if (kh == null) {
-            return "redirect:/login";
-        }
-
-        DonHang order = donHangService.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng"));
-        String qrUrl =
-                "https://api.vietqr.io/image/970436-1049308173-compact2.jpg"
-                        + "?amount=" + order.getTongTien().intValue()
-                        + "&addInfo=DH" + order.getId()
-                        + "&accountName=DO%20ANH%20TUAN";
-
-        model.addAttribute("qrUrl", qrUrl);
-
-        model.addAttribute("order", order);
-
-        return "payment-qr";
-    }
-
 
     @GetMapping("/orders")
     public String orderHistory(HttpSession session, Model model) {

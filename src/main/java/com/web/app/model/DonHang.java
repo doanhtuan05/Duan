@@ -47,10 +47,4 @@ public class DonHang {
     @Column(name = "so_tien_giam")
     @Builder.Default
     private Double soTienGiam = 0.0;
-
-    @Column(name = "phuong_thuc_thanh_toan", length = 20)
-    private String phuongThucThanhToan;
-
-    @Column(name = "trang_thai_thanh_toan", length = 30)
-    private String trangThaiThanhToan;
 }

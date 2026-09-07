@@ -1,216 +1,40 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <th:block th:replace="~{fragments/header :: html_head(${product.tenSanPham})}"></th:block>
-
-    <style>
-
-        .variant-btn{
-            min-width:110px;
-            margin-right:10px;
-            margin-bottom:10px;
-            border-radius:10px;
-            font-weight:600;
-        }
-
-        .variant-btn.active{
-            background:#198754;
-            color:white;
-            border-color:#198754;
-        }
-
-        .color-circle{
-            width:18px;
-            height:18px;
-            border-radius:50%;
-            display:inline-block;
-            margin-right:8px;
-            border:1px solid #ccc;
-            vertical-align:middle;
-        }
-
-    </style>
-
-</head>
+<head th:replace="~{fragments/header :: html_head(${product.tenSanPham})}"></head>
 <body class="d-flex flex-column min-vh-100">
-    <div th:replace="~{fragments/header :: navbar}"></div>
-
-    <main class="container my-5 flex-grow-1">
-        <!-- Breadcrumbs -->
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
-                <li class="breadcrumb-item"><span th:text="${product.danhMuc.tenDanhMuc}"></span></li>
-                <li class="breadcrumb-item active" aria-current="page" th:text="${product.tenSanPham}"></li>
-            </ol>
-        </nav>
-
-        <div class="row g-5">
-            <!-- Product Photo -->
-            <div class="col-md-6">
-                <div class="glass-card p-3 text-center">
-                    <img th:src="${product.anhUrl != null ? (product.anhUrl.startsWith('http') ? product.anhUrl : '/uploads/' + product.anhUrl) : 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=500'}"
-                         class="img-fluid rounded-3" alt="Product Image" style="max-height: 450px; object-fit: cover; width: 100%;">
-                </div>
-            </div>
-
-            <!-- Product Specs -->
-            <div class="col-md-6">
-                <div class="glass-card p-5 h-100 d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="d-flex gap-2 mb-3">
-                            <span class="badge bg-primary text-white" th:text="${product.danhMuc.tenDanhMuc}"></span>
-                            <span class="badge bg-secondary text-white" th:text="${product.thuongHieu.tenThuongHieu}"></span>
-                        </div>
-                        <h2 class="fw-bold mb-3" th:text="${product.tenSanPham}"></h2>
-                        <h3 class="text-primary fw-bold mb-4" th:text="${#numbers.formatDecimal(product.gia, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></h3>
-
-                        <hr class="my-4">
-
-                        <h5 class="fw-bold mb-3">Thông tin sản phẩm</h5>
-
-                        <!-- Thông tin sản phẩm -->
-                        <table class="table table-borderless align-middle mb-4">
-
-                            <tr>
-                                <td width="35%"><strong>Thương hiệu</strong></td>
-                                <td th:text="${product.thuongHieu.tenThuongHieu}"></td>
-                            </tr>
-
-                            <tr>
-                                <td><strong>Kiểu dáng</strong></td>
-                                <td th:text="${product.kieuDang}"></td>
-                            </tr>
-
-                            <tr>
-                                <td><strong>Chất liệu</strong></td>
-                                <td th:text="${product.chatLieu}"></td>
-                            </tr>
-
-                            <tr>
-                                <td><strong>Đối tượng</strong></td>
-                                <td th:text="${product.doiTuong}"></td>
-                            </tr>
-
-                            <tr>
-                                <td><strong>Độ tuổi</strong></td>
-                                <td th:text="${product.doTuoi}"></td>
-                            </tr>
-
-                        </table>
-
-                        <!-- Màu sắc -->
-                        <div class="mb-4">
-
-                            <h6 class="fw-bold mb-3">
-                                Màu sắc
-                            </h6>
-
-                            <button
-                                    type="button"
-                                    class="btn btn-outline-success variant-btn active"
-                                    disabled>
-
-        <span class="color-circle"
-              style="background:black;"></span>
-
-                                <span th:text="${product.mauSac}"></span>
-
-                            </button>
-
-                        </div>
-
-                        <!-- Chu vi vòng đầu -->
-                        <div class="mb-4">
-
-                            <h6 class="fw-bold mb-3">
-                                Chu vi vòng đầu
-                            </h6>
-
-                            <button
-                                    type="button"
-                                    class="btn btn-outline-success variant-btn active"
-                                    disabled>
-
-                                <span th:text="${product.chuViVongDau}"></span>
-
-                            </button>
-
-                        </div>
-
-                        <hr>
-
-                        <h5 class="fw-bold mb-2">Mô tả sản phẩm</h5>
-
-                        <p class="text-muted mb-4"
-                           th:text="${product.moTa != null && !product.moTa.isBlank()
-   ? product.moTa
-   : 'Chưa có mô tả cho sản phẩm này.'}">
-                        </p>
-
-                        <!-- Stock Status -->
-                        <div class="mb-4">
-                            <span class="fw-bold">Tình trạng: </span>
-                            <span th:if="${product.soLuong > 0}" class="badge bg-success" th:text="'Còn hàng (' + ${product.soLuong} + ' chiếc)'"></span>
-                            <span th:if="${product.soLuong <= 0}" class="badge bg-danger">Hết hàng</span>
-                        </div>
-                    </div>
-
-                    <!-- Cart Actions Form -->
-                    <div class="mt-4" th:if="${product.soLuong > 0}">
-                        <form th:action="@{/cart/add}" method="post">
-                            <input type="hidden" name="productId" th:value="${product.id}">
-                            <div class="row g-3 align-items-center">
-                                <div class="col-auto">
-                                    <label for="quantity" class="form-label mb-0">Số lượng:</label>
-                                </div>
-                                <div class="col-auto">
-                                    <div class="input-group" style="max-width: 140px;">
-                                        <button class="btn btn-outline-secondary" type="button" id="btn-detail-minus">-</button>
-                                        <input type="text" id="quantity" name="quantity" class="form-control text-center bg-white" value="1" readonly>
-                                        <button class="btn btn-outline-secondary" type="button" id="btn-detail-plus">+</button>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <button type="submit" class="btn btn-accent px-4 py-2 w-100"><i class="fa-solid fa-cart-plus me-2"></i>Thêm vào giỏ hàng</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    
-                    <script th:inline="javascript">
-                        document.addEventListener('DOMContentLoaded', function() {
-                            const btnMinus = document.getElementById('btn-detail-minus');
-                            const btnPlus = document.getElementById('btn-detail-plus');
-                            const quantityInput = document.getElementById('quantity');
-                            const maxVal = /*[[${product.soLuong}]]*/ 1;
-
-                            if (btnMinus && btnPlus && quantityInput) {
-                                btnMinus.addEventListener('click', function() {
-                                    let currentVal = parseInt(quantityInput.value) || 1;
-                                    if (currentVal > 1) {
-                                        quantityInput.value = currentVal - 1;
-                                    }
-                                });
-
-                                btnPlus.addEventListener('click', function() {
-                                    let currentVal = parseInt(quantityInput.value) || 1;
-                                    if (currentVal < maxVal) {
-                                        quantityInput.value = currentVal + 1;
-                                    }
-                                });
-                            }
-                        });
-                    </script>
-
-                    <div class="mt-4" th:if="${product.soLuong <= 0}">
-                        <button class="btn btn-secondary w-100 py-2" disabled><i class="fa-solid fa-ban me-2"></i>Sản phẩm tạm thời hết hàng</button>
-                    </div>
-                </div>
-            </div>
+<div th:replace="~{fragments/header :: navbar}"></div>
+<main class="container my-5 flex-grow-1">
+  <nav class="mb-4"><a th:href="@{/}">Trang chủ</a> / <span th:text="${product.tenSanPham}"></span></nav>
+  <div class="row g-5">
+    <div class="col-md-6"><div class="glass-card p-3 text-center"><img th:src="${product.anhUrl != null ? (product.anhUrl.startsWith('http') ? product.anhUrl : '/uploads/' + product.anhUrl) : '/images/hat-placeholder.svg'}" class="img-fluid rounded-3" th:alt="${product.tenSanPham}" style="max-height:450px;object-fit:cover;width:100%"></div></div>
+    <div class="col-md-6"><div class="glass-card p-5 h-100">
+      <div class="d-flex gap-2 mb-3"><span class="badge bg-primary" th:text="${product.danhMuc.tenDanhMuc}"></span><span class="badge bg-secondary" th:text="${product.thuongHieu.tenThuongHieu}"></span></div>
+      <h2 class="fw-bold mb-3" th:text="${product.tenSanPham}"></h2>
+      <h3 class="text-primary fw-bold mb-4" id="variantPrice" th:text="${#numbers.formatDecimal(product.gia,0,'COMMA',0,'POINT')} + ' ₫'"></h3>
+      <p class="text-muted" th:text="${product.moTa}"></p><hr>
+      <form th:action="@{/cart/add}" method="post" th:if="${!#lists.isEmpty(variants) or product.soLuong > 0}">
+        <input type="hidden" name="productId" th:value="${product.id}">
+        <div class="mb-3" th:if="${!#lists.isEmpty(variants)}">
+          <label class="form-label fw-bold" for="variantId">Màu sắc / kích cỡ *</label>
+          <select class="form-select" name="variantId" id="variantId" required>
+            <option value="">Chọn biến thể</option>
+            <option th:each="v : ${variants}" th:value="${v.id}" th:data-price="${v.gia}" th:data-stock="${v.soLuong}" th:disabled="${v.soLuong <= 0}" th:text="${v.mauSac + ' / ' + v.kichCo + ' — ' + #numbers.formatDecimal(v.gia,0,'COMMA',0,'POINT') + ' ₫ (' + v.soLuong + ' còn lại)'}"></option>
+          </select>
         </div>
-    </main>
-
-    <div th:replace="~{fragments/footer :: footer}"></div>
-</body>
-</html>
+        <div class="mb-3"><span class="fw-bold">Tồn kho: </span><span id="stockLabel" th:text="${#lists.isEmpty(variants) ? product.soLuong + ' sản phẩm' : 'Chọn biến thể'}"></span></div>
+        <div class="row g-3 align-items-center"><div class="col-auto"><label for="quantity" class="form-label mb-0">Số lượng:</label></div><div class="col-auto"><input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" th:max="${product.soLuong}" required style="width:90px"></div><div class="col"><button class="btn btn-accent w-100 py-2" type="submit"><i class="fa-solid fa-cart-plus me-2"></i>Thêm vào giỏ</button></div></div>
+      </form>
+      <button th:if="${#lists.isEmpty(variants) and product.soLuong <= 0}" class="btn btn-secondary w-100" disabled>Hết hàng</button>
+    </div></div>
+  </div>
+</main>
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script>
+document.getElementById('variantId')?.addEventListener('change', function () {
+  const option = this.options[this.selectedIndex], stock = Number(option.dataset.stock || 0), price = Number(option.dataset.price || 0);
+  document.getElementById('quantity').max = stock || 1; document.getElementById('quantity').value = 1;
+  document.getElementById('stockLabel').textContent = stock + ' sản phẩm';
+  document.getElementById('variantPrice').textContent = new Intl.NumberFormat('vi-VN').format(price) + ' ₫';
+});
+</script>
+</body></html>

@@ -1,41 +1,16 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/header :: html_head('Quản lý khách hàng')}"></head>
-<body class="d-flex flex-column min-vh-100">
-    <div th:replace="~{fragments/header :: navbar}"></div>
-
-    <main class="container my-5 flex-grow-1">
-        <h3 class="fw-bold mb-4"><i class="fa-solid fa-users text-primary me-2"></i>Quản lý danh sách khách hàng</h3>
-
-        <!-- Customers Table -->
-        <div class="glass-card p-4 table-responsive">
-            <table class="table align-middle">
-                <thead>
-                    <tr>
-                        <th class="text-center" style="width: 80px;">Mã KH</th>
-                        <th>Họ và tên</th>
-                        <th>Tên đăng nhập</th>
-                        <th>Số điện thoại</th>
-                        <th>Email</th>
-                        <th>Địa chỉ giao hàng mặc định</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="kh : ${customers}">
-                        <td class="text-center fw-bold" th:text="${kh.id}"></td>
-                        <td class="fw-bold text-dark" th:text="${kh.hoTen}"></td>
-                        <td>
-                            <span class="badge bg-light text-dark px-2 py-1" th:text="${kh.taiKhoan.tenDangNhap}"></span>
-                        </td>
-                        <td th:text="${kh.soDienThoai != null && !kh.soDienThoai.isBlank() ? kh.soDienThoai : '-'}"></td>
-                        <td th:text="${kh.email != null && !kh.email.isBlank() ? kh.email : '-'}"></td>
-                        <td class="text-truncate" style="max-width: 250px;" th:text="${kh.diaChi != null && !kh.diaChi.isBlank() ? kh.diaChi : '-'}" th:title="${kh.diaChi}"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </main>
-
-    <div th:replace="~{fragments/footer :: footer}"></div>
-</body>
-</html>
+<!DOCTYPE html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head th:replace="~{fragments/header :: html_head('Quản lý khách hàng')}"></head>
+<body class="admin-dashboard admin-customers d-flex flex-column min-vh-100"><div th:replace="~{fragments/header :: navbar}"></div><main class="dashboard-shell container-fluid flex-grow-1">
+<nav class="admin-tabs" aria-label="Điều hướng quản trị"><a th:href="@{/admin/dashboard}" class="admin-tab"><i class="fa-solid fa-chart-line"></i><span>Tổng quan</span></a><a th:href="@{/admin/products}" class="admin-tab"><i class="fa-solid fa-hat-cowboy"></i><span>Sản phẩm</span></a><a th:href="@{/admin/categories}" class="admin-tab"><i class="fa-solid fa-layer-group"></i><span>Danh mục</span></a><a th:href="@{/admin/brands}" class="admin-tab"><i class="fa-regular fa-copyright"></i><span>Thương hiệu</span></a><a th:href="@{/admin/orders}" class="admin-tab"><i class="fa-solid fa-receipt"></i><span>Đơn hàng</span></a><a th:href="@{/admin/customers}" class="admin-tab active" aria-current="page"><i class="fa-regular fa-user"></i><span>Khách hàng</span></a><a th:href="@{/admin/coupons}" class="admin-tab"><i class="fa-solid fa-ticket"></i><span>Mã giảm giá</span></a></nav>
+<header class="orders-heading"><p class="eyebrow mb-2">KHÁCH HÀNG</p><h1>Quản lý danh sách khách hàng</h1><p class="heading-copy mb-0"><span th:text="${#numbers.formatInteger(totalItems,0,'COMMA')}">0</span> khách hàng được tìm thấy</p></header>
+<div th:if="${successMessage}" class="product-alert success"><i class="fa-solid fa-circle-check"></i><span th:text="${successMessage}"></span></div><div th:if="${errorMessage}" class="product-alert error"><i class="fa-solid fa-triangle-exclamation"></i><span th:text="${errorMessage}"></span></div>
+<section class="dashboard-card order-filter-card"><form th:action="@{/admin/customers}" method="get" class="customer-filters"><div class="filter-search"><i class="fa-solid fa-magnifying-glass"></i><input type="search" name="keyword" th:value="${keyword}" placeholder="Tên, email hoặc số điện thoại..." aria-label="Tìm khách hàng"></div><select name="status" aria-label="Trạng thái tài khoản"><option value="">Tất cả trạng thái</option><option value="ACTIVE" th:selected="${status=='ACTIVE'}">Đang hoạt động</option><option value="LOCKED" th:selected="${status=='LOCKED'}">Bị khóa</option><option value="UNVERIFIED" th:selected="${status=='UNVERIFIED'}">Chưa xác thực</option></select><select name="sort" aria-label="Sắp xếp"><option value="newest" th:selected="${sort=='newest'}">Khách hàng mới nhất</option><option value="spending" th:selected="${sort=='spending'}">Chi tiêu nhiều nhất</option><option value="orders" th:selected="${sort=='orders'}">Nhiều đơn hàng nhất</option></select><button class="filter-btn" title="Áp dụng bộ lọc"><i class="fa-solid fa-filter"></i> Lọc</button><a th:href="@{/admin/customers}" class="reset-btn" title="Xóa toàn bộ bộ lọc"><i class="fa-solid fa-rotate-left"></i></a></form></section>
+<section class="dashboard-card customers-table-card" th:unless="${#lists.isEmpty(customers)}"><div class="customers-table-wrap"><table class="customers-table"><thead><tr><th>Khách hàng</th><th>Liên hệ</th><th>Hoạt động từ</th><th>Trạng thái</th><th>Đơn hàng</th><th>Tổng chi tiêu</th><th>Thao tác</th></tr></thead><tbody><tr th:each="row:${customers}" th:with="kh=${row.customer}">
+<td data-label="Khách hàng"><div class="customer-profile"><span class="customer-avatar" th:text="${#strings.isEmpty(kh.hoTen)?'K':#strings.substring(kh.hoTen,0,1)}">K</span><div><strong th:text="${kh.hoTen}"></strong><small th:text="${kh.taiKhoan!=null?'@'+kh.taiKhoan.tenDangNhap:'#'+kh.id}"></small></div></div></td>
+<td data-label="Liên hệ"><div class="contact-cell"><span th:text="${!#strings.isEmpty(kh.email)?kh.email:'Chưa có email'}"></span><small th:text="${!#strings.isEmpty(kh.soDienThoai)?kh.soDienThoai:'Chưa có SĐT'}"></small></div></td>
+<td data-label="Hoạt động từ"><span class="customer-date" th:text="${row.firstOrderDate!=null?#temporals.format(row.firstOrderDate,'dd/MM/yyyy'):'Chưa có đơn'}"></span></td>
+<td data-label="Trạng thái"><span class="account-status" th:classappend="${kh.taiKhoan==null?' account-unverified':' account-'+#strings.toLowerCase(kh.taiKhoan.trangThai)}"><i class="fa-solid fa-circle"></i><span th:text="${kh.taiKhoan==null?'Chưa xác thực':(kh.taiKhoan.trangThai=='ACTIVE'?'Đang hoạt động':(kh.taiKhoan.trangThai=='LOCKED'?'Bị khóa':'Chưa xác thực'))}"></span></span></td>
+<td data-label="Đơn hàng"><span class="order-count" th:text="${#numbers.formatInteger(row.orderCount,0,'COMMA')}"></span></td><td data-label="Tổng chi tiêu" class="customer-spending" th:text="${#numbers.formatDecimal(row.totalSpent,0,'COMMA',0,'POINT')}+' ₫'"></td>
+<td data-label="Thao tác"><div class="customer-actions"><a th:href="@{/admin/customers/{id}(id=${kh.id})}" class="order-detail-btn"><i class="fa-regular fa-eye"></i><span>Chi tiết</span></a><form th:if="${kh.taiKhoan!=null}" th:action="@{/admin/customers/{id}/toggle-status(id=${kh.id})}" method="post" onsubmit="return confirm('Bạn chắc chắn muốn thay đổi trạng thái tài khoản khách hàng này?')"><button class="account-toggle-btn" th:classappend="${kh.taiKhoan.trangThai=='LOCKED'}?' unlock':' lock'"><i th:class="${kh.taiKhoan.trangThai=='LOCKED'}?'fa-solid fa-lock-open':'fa-solid fa-lock'"></i><span th:text="${kh.taiKhoan.trangThai=='LOCKED'}?'Mở khóa':'Khóa'"></span></button></form></div></td>
+</tr></tbody></table></div><nav class="products-pagination" th:if="${totalPages>1}"><a class="page-control" th:classappend="${currentPage==0}?' disabled'" th:href="@{/admin/customers(keyword=${keyword},status=${status},sort=${sort},page=${currentPage-1})}"><i class="fa-solid fa-angle-left"></i></a><a class="page-control" th:each="i:${#numbers.sequence(0,totalPages-1)}" th:classappend="${currentPage==i}?' active'" th:href="@{/admin/customers(keyword=${keyword},status=${status},sort=${sort},page=${i})}" th:text="${i+1}"></a><a class="page-control" th:classappend="${currentPage==totalPages-1}?' disabled'" th:href="@{/admin/customers(keyword=${keyword},status=${status},sort=${sort},page=${currentPage+1})}"><i class="fa-solid fa-angle-right"></i></a></nav></section>
+<section class="dashboard-card empty-state orders-empty" th:if="${#lists.isEmpty(customers)}"><div class="empty-icon"><i class="fa-regular fa-user"></i></div><h4>Không tìm thấy khách hàng</h4><p>Thử thay đổi từ khóa, trạng thái hoặc cách sắp xếp.</p><a th:href="@{/admin/customers}" class="empty-reset">Xóa bộ lọc</a></section>
+</main><div th:replace="~{fragments/footer :: footer}"></div></body></html>

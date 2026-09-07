@@ -23,6 +23,14 @@ public class ThuongHieuService {
         return thuongHieuRepository.findById(id);
     }
 
+    public boolean nameExists(String name) {
+        return thuongHieuRepository.existsByTenThuongHieuIgnoreCase(name);
+    }
+
+    public boolean nameExistsForOtherBrand(String name, Integer id) {
+        return thuongHieuRepository.existsByTenThuongHieuIgnoreCaseAndIdNot(name, id);
+    }
+
     @Transactional
     public ThuongHieu save(ThuongHieu thuongHieu) {
         return thuongHieuRepository.save(thuongHieu);

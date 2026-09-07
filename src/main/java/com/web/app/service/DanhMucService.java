@@ -23,6 +23,14 @@ public class DanhMucService {
         return danhMucRepository.findById(id);
     }
 
+    public boolean nameExists(String name) {
+        return danhMucRepository.existsByTenDanhMucIgnoreCase(name);
+    }
+
+    public boolean nameExistsForOtherCategory(String name, Integer id) {
+        return danhMucRepository.existsByTenDanhMucIgnoreCaseAndIdNot(name, id);
+    }
+
     @Transactional
     public DanhMuc save(DanhMuc danhMuc) {
         return danhMucRepository.save(danhMuc);

@@ -45,6 +45,7 @@
                                              class="rounded-3 me-3" alt="Product Image" style="width: 60px; height: 60px; object-fit: cover;">
                                         <div>
                                             <a th:href="@{/san-pham/{id}(id=${item.sanPham.id})}" class="fw-bold text-dark text-decoration-none" th:text="${item.sanPham.tenSanPham}"></a>
+                                            <div th:if="${item.bienThe != null}" class="text-muted small" th:text="${item.bienThe.mauSac + ' / ' + item.bienThe.kichCo}"></div>
                                             <div class="text-muted small" th:text="'Kho: ' + ${item.sanPham.soLuong} + ' chiếc'"></div>
                                         </div>
                                     </div>
@@ -52,18 +53,18 @@
                                 <td class="text-center" th:text="${#numbers.formatDecimal(item.sanPham.gia, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
                                 <td>
                                     <div class="input-group justify-content-center mx-auto" style="max-width: 120px;">
-                                        <button class="btn btn-sm btn-outline-secondary btn-cart-minus px-2" type="button" th:data-product-id="${item.sanPham.id}">-</button>
+                                        <button class="btn btn-sm btn-outline-secondary btn-cart-minus px-2" type="button" th:data-product-id="${item.id}">-</button>
                                         <input type="text" class="form-control text-center px-1 cart-qty-input bg-white" 
                                                th:value="${item.soLuong}" 
-                                               th:data-product-id="${item.sanPham.id}" 
+                                               th:data-product-id="${item.id}"
                                                th:data-max="${item.sanPham.soLuong}"
                                                style="max-width: 50px;" readonly>
-                                        <button class="btn btn-sm btn-outline-secondary btn-cart-plus px-2" type="button" th:data-product-id="${item.sanPham.id}">+</button>
+                                        <button class="btn btn-sm btn-outline-secondary btn-cart-plus px-2" type="button" th:data-product-id="${item.id}">+</button>
                                     </div>
                                 </td>
-                                <td class="text-center fw-bold text-primary" th:id="'subtotal-' + ${item.sanPham.id}" th:text="${#numbers.formatDecimal(item.sanPham.gia * item.soLuong, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                                <td class="text-center fw-bold text-primary" th:id="'subtotal-' + ${item.id}" th:text="${#numbers.formatDecimal(item.donGia * item.soLuong, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
                                 <td class="text-center">
-                                    <a href="javascript:void(0)" class="text-danger fs-5 btn-cart-remove" th:data-product-id="${item.sanPham.id}">
+                                    <a href="javascript:void(0)" class="text-danger fs-5 btn-cart-remove" th:data-product-id="${item.id}">
                                         <i class="fa-regular fa-trash-can"></i>
                                     </a>
                                 </td>
@@ -278,4 +279,3 @@
     </script>
 </body>
 </html>
-

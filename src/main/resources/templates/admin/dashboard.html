@@ -1,208 +1,47 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: html_head('Admin Dashboard')}"></head>
-<body class="d-flex flex-column min-vh-100">
-    <div th:replace="~{fragments/header :: navbar}"></div>
+<body class="admin-dashboard d-flex flex-column min-vh-100">
+<div th:replace="~{fragments/header :: navbar}"></div>
+<main class="dashboard-shell container-fluid flex-grow-1">
+  <nav class="admin-tabs" aria-label="Điều hướng quản trị">
+    <a th:href="@{/admin/dashboard}" class="admin-tab active" aria-current="page"><i class="fa-solid fa-chart-line"></i><span>Tổng quan</span></a>
+    <a th:href="@{/admin/products}" class="admin-tab"><i class="fa-solid fa-hat-cowboy"></i><span>Sản phẩm</span></a>
+    <a th:href="@{/admin/categories}" class="admin-tab"><i class="fa-solid fa-layer-group"></i><span>Danh mục</span></a>
+    <a th:href="@{/admin/brands}" class="admin-tab"><i class="fa-regular fa-copyright"></i><span>Thương hiệu</span></a>
+    <a th:href="@{/admin/orders}" class="admin-tab"><i class="fa-solid fa-receipt"></i><span>Đơn hàng</span></a>
+    <a th:href="@{/admin/customers}" class="admin-tab"><i class="fa-regular fa-user"></i><span>Khách hàng</span></a>
+    <a th:href="@{/admin/coupons}" class="admin-tab"><i class="fa-solid fa-ticket"></i><span>Mã giảm giá</span></a>
+  </nav>
 
-    <main class="container my-5 flex-grow-1">
-        <!-- Dashboard Navigation Menu -->
-        <div class="row g-3 mb-4">
-            <div class="col-12">
-                <div class="glass-card p-3 d-flex flex-wrap gap-2 justify-content-between align-items-center">
-                    <h4 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-chart-line me-2"></i>Thống kê & Quản trị</h4>
-                    <div class="d-flex gap-2">
-                        <a th:href="@{/admin/products}" class="btn btn-sm btn-outline-dark"><i class="fa-solid fa-hat-cowboy me-1"></i>Sản phẩm</a>
-                        <a th:href="@{/admin/categories}" class="btn btn-sm btn-outline-dark"><i class="fa-solid fa-list me-1"></i>Danh mục</a>
-                        <a th:href="@{/admin/brands}" class="btn btn-sm btn-outline-dark"><i class="fa-solid fa-copyright me-1"></i>Thương hiệu</a>
-                        <a th:href="@{/admin/orders}" class="btn btn-sm btn-outline-dark"><i class="fa-solid fa-receipt me-1"></i>Đơn hàng</a>
-                        <a th:href="@{/admin/customers}" class="btn btn-sm btn-outline-dark"><i class="fa-solid fa-users me-1"></i>Khách hàng</a>
-                        <a th:href="@{/admin/coupons}" class="btn btn-sm btn-outline-dark"><i class="fa-solid fa-ticket me-1"></i>Mã giảm giá</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <section class="row g-3 g-xl-4 mb-4" aria-label="Chỉ số chính">
+    <div class="col-md-6"><article class="dashboard-card stat-card h-100">
+      <div class="stat-icon icon-violet"><i class="fa-solid fa-wallet"></i></div><div class="stat-content"><p class="stat-label">Tổng doanh thu bán lẻ</p>
+      <h2 th:text="${#numbers.formatDecimal(tongDoanhThu,0,'COMMA',0,'POINT')}+' ₫'">0 ₫</h2><div class="trend-row"><span class="trend" th:classappend="${tangTruongDoanhThu>=0}?' trend-up':' trend-down'"><i th:class="${tangTruongDoanhThu>=0}?'fa-solid fa-arrow-trend-up':'fa-solid fa-arrow-trend-down'"></i> <span th:text="${#numbers.formatDecimal(T(java.lang.Math).abs(tangTruongDoanhThu),1,1)}+'%'">0%</span></span><span class="trend-note">so với kỳ trước</span></div></div>
+    </article></div>
+    <div class="col-md-6"><article class="dashboard-card stat-card h-100">
+      <div class="stat-icon icon-cyan"><i class="fa-solid fa-box"></i></div><div class="stat-content"><p class="stat-label">Đơn hàng giao thành công</p>
+      <h2 th:text="${#numbers.formatInteger(tongDonHang,0,'COMMA')}+' đơn'">0 đơn</h2><div class="trend-row"><span class="trend" th:classappend="${tangTruongDonHang>=0}?' trend-up':' trend-down'"><i th:class="${tangTruongDonHang>=0}?'fa-solid fa-arrow-trend-up':'fa-solid fa-arrow-trend-down'"></i> <span th:text="${#numbers.formatDecimal(T(java.lang.Math).abs(tangTruongDonHang),1,1)}+'%'">0%</span></span><span class="trend-note">so với kỳ trước</span></div></div>
+    </article></div>
+  </section>
 
-        <!-- KPI Cards -->
-        <div class="row g-4 mb-5">
-            <div class="col-md-6">
-                <div class="glass-card p-4 text-white" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-white-50 text-uppercase fw-bold small">Tổng doanh thu bán lẻ</h6>
-                            <h2 class="fw-bold mb-0" th:text="${#numbers.formatDecimal(tongDoanhThu, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></h2>
-                        </div>
-                        <i class="fa-solid fa-wallet fs-1 opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="glass-card p-4 text-white" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-white-50 text-uppercase fw-bold small">Tổng đơn hàng giao thành công</h6>
-                            <h2 class="fw-bold mb-0" th:text="${tongDonHang} + ' Đơn'"></h2>
-                        </div>
-                        <i class="fa-solid fa-box-open fs-1 opacity-50"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <section class="row g-3 g-xl-4 mb-4">
+    <div class="col-xl-8"><article class="dashboard-card chart-card h-100"><div class="card-heading"><div><p class="card-kicker">HIỆU SUẤT</p><h3>Doanh thu theo ngày</h3></div><span class="chart-unit">VNĐ</span></div><div class="chart-frame" th:unless="${#lists.isEmpty(dsNgay)}"><canvas id="revenueChart"></canvas></div><div class="empty-state" th:if="${#lists.isEmpty(dsNgay)}"><div class="empty-icon"><i class="fa-solid fa-chart-line"></i></div><h4>Chưa có dữ liệu doanh thu</h4><p>Biểu đồ sẽ xuất hiện khi có đơn hàng giao thành công.</p></div></article></div>
+    <div class="col-xl-4"><article class="dashboard-card chart-card h-100"><div class="card-heading"><div><p class="card-kicker">PHÂN BỔ</p><h3>Doanh thu theo tháng</h3></div></div><div class="chart-frame doughnut-frame" th:unless="${#lists.isEmpty(dsThang)}"><canvas id="monthlyChart"></canvas></div><div class="empty-state" th:if="${#lists.isEmpty(dsThang)}"><div class="empty-icon"><i class="fa-solid fa-chart-pie"></i></div><h4>Chưa có dữ liệu theo tháng</h4><p>Dữ liệu phân bổ sẽ được cập nhật tự động.</p></div></article></div>
+  </section>
 
-        <!-- Charts visualization -->
-        <div class="row g-4 mb-5">
-            <div class="col-lg-8">
-                <div class="glass-card p-4">
-                    <h5 class="fw-bold mb-4 text-primary"><i class="fa-solid fa-chart-simple me-2"></i>Biểu đồ Doanh thu Theo ngày</h5>
-                    <canvas id="revenueChart" style="max-height: 350px;"></canvas>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="glass-card p-4">
-                    <h5 class="fw-bold mb-4 text-primary"><i class="fa-solid fa-chart-pie me-2"></i>Doanh thu Theo tháng</h5>
-                    <canvas id="monthlyChart" style="max-height: 350px;"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Reports Breakdown Lists -->
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="glass-card p-4">
-                    <h6 class="fw-bold border-bottom pb-2 mb-3 text-success"><i class="fa-solid fa-calendar-day me-2"></i>Doanh thu theo ngày</h6>
-                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                        <table class="table table-sm align-middle small">
-                            <thead>
-                                <tr>
-                                    <th>Ngày</th>
-                                    <th class="text-end">Doanh thu</th>
-                                    <th class="text-center">Số đơn</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="row : ${dsNgay}">
-                                    <td th:text="${row.label}"></td>
-                                    <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(row.revenue, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
-                                    <td class="text-center" th:text="${row.orderCount}"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="glass-card p-4">
-                    <h6 class="fw-bold border-bottom pb-2 mb-3 text-info"><i class="fa-solid fa-calendar-week me-2"></i>Doanh thu theo tháng</h6>
-                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                        <table class="table table-sm align-middle small">
-                            <thead>
-                                <tr>
-                                    <th>Tháng</th>
-                                    <th class="text-end">Doanh thu</th>
-                                    <th class="text-center">Số đơn</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="row : ${dsThang}">
-                                    <td th:text="${row.label}"></td>
-                                    <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(row.revenue, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
-                                    <td class="text-center" th:text="${row.orderCount}"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="glass-card p-4">
-                    <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary"><i class="fa-solid fa-calendar-days me-2"></i>Doanh thu theo năm</h6>
-                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                        <table class="table table-sm align-middle small">
-                            <thead>
-                                <tr>
-                                    <th>Năm</th>
-                                    <th class="text-end">Doanh thu</th>
-                                    <th class="text-center">Số đơn</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="row : ${dsNam}">
-                                    <td th:text="${row.label}"></td>
-                                    <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(row.revenue, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
-                                    <td class="text-center" th:text="${row.orderCount}"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <div th:replace="~{fragments/footer :: footer}"></div>
-
-    <!-- Chart.js dependency CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        // Data sources from Thymeleaf projections
-        const labelsNgay = /*[[${dsNgay.![label]}]]*/ [];
-        const valuesNgay = /*[[${dsNgay.![revenue]}]]*/ [];
-
-        const labelsThang = /*[[${dsThang.![label]}]]*/ [];
-        const valuesThang = /*[[${dsThang.![revenue]}]]*/ [];
-
-        // 1. Line Chart for Daily Revenue
-        const ctxDaily = document.getElementById('revenueChart').getContext('2d');
-        new Chart(ctxDaily, {
-            type: 'line',
-            data: {
-                labels: labelsNgay.reverse(),
-                datasets: [{
-                    label: 'Doanh thu (₫)',
-                    data: valuesNgay.reverse(),
-                    borderColor: '#4f46e5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    fill: true,
-                    tension: 0.3,
-                    borderWidth: 3
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
-        // 2. Bar Chart for Monthly Revenue
-        const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
-        new Chart(ctxMonthly, {
-            type: 'bar',
-            data: {
-                labels: labelsThang.reverse(),
-                datasets: [{
-                    label: 'Doanh thu tháng (₫)',
-                    data: valuesThang.reverse(),
-                    backgroundColor: '#06b6d4',
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-        /*]]>*/
-    </script>
-</body>
-</html>
+  <section class="row g-3 g-xl-4">
+    <div class="col-xl-4"><article class="dashboard-card report-card h-100"><div class="card-heading"><div><p class="card-kicker">CHI TIẾT</p><h3>Doanh thu theo ngày</h3></div><i class="fa-regular fa-calendar card-heading-icon"></i></div><div class="report-scroll" th:unless="${#lists.isEmpty(dsNgay)}"><table class="report-table"><thead><tr><th>Ngày</th><th>Doanh thu</th><th>Đơn</th></tr></thead><tbody><tr th:each="row:${dsNgay}"><td data-label="Ngày" th:text="${row.label}"></td><td data-label="Doanh thu" th:text="${#numbers.formatDecimal(row.revenue,0,'COMMA',0,'POINT')}+' ₫'"></td><td data-label="Đơn" th:text="${#numbers.formatInteger(row.orderCount,0,'COMMA')}"></td></tr></tbody></table></div><div class="empty-state compact" th:if="${#lists.isEmpty(dsNgay)}"><div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div><h4>Chưa có đơn hàng nào</h4><p>Đơn đã giao sẽ hiển thị tại đây.</p></div></article></div>
+    <div class="col-xl-4"><article class="dashboard-card report-card h-100"><div class="card-heading"><div><p class="card-kicker">CHI TIẾT</p><h3>Doanh thu theo tháng</h3></div><i class="fa-regular fa-calendar card-heading-icon"></i></div><div class="report-scroll" th:unless="${#lists.isEmpty(dsThang)}"><table class="report-table"><thead><tr><th>Tháng</th><th>Doanh thu</th><th>Đơn</th></tr></thead><tbody><tr th:each="row:${dsThang}"><td data-label="Tháng" th:text="${row.label}"></td><td data-label="Doanh thu" th:text="${#numbers.formatDecimal(row.revenue,0,'COMMA',0,'POINT')}+' ₫'"></td><td data-label="Đơn" th:text="${#numbers.formatInteger(row.orderCount,0,'COMMA')}"></td></tr></tbody></table></div><div class="empty-state compact" th:if="${#lists.isEmpty(dsThang)}"><div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div><h4>Chưa có đơn hàng nào</h4><p>Tổng hợp theo tháng sẽ hiển thị tại đây.</p></div></article></div>
+    <div class="col-xl-4"><article class="dashboard-card report-card h-100"><div class="card-heading"><div><p class="card-kicker">CHI TIẾT</p><h3>Doanh thu theo năm</h3></div><i class="fa-regular fa-calendar card-heading-icon"></i></div><div class="report-scroll" th:unless="${#lists.isEmpty(dsNam)}"><table class="report-table"><thead><tr><th>Năm</th><th>Doanh thu</th><th>Đơn</th></tr></thead><tbody><tr th:each="row:${dsNam}"><td data-label="Năm" th:text="${row.label}"></td><td data-label="Doanh thu" th:text="${#numbers.formatDecimal(row.revenue,0,'COMMA',0,'POINT')}+' ₫'"></td><td data-label="Đơn" th:text="${#numbers.formatInteger(row.orderCount,0,'COMMA')}"></td></tr></tbody></table></div><div class="empty-state compact" th:if="${#lists.isEmpty(dsNam)}"><div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div><h4>Chưa có đơn hàng nào</h4><p>Tổng hợp theo năm sẽ hiển thị tại đây.</p></div></article></div>
+  </section>
+</main>
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script th:inline="javascript">
+const dailyLabels=[.../*[[${dsNgay.![label]}]]*/[]].reverse(),dailyValues=[.../*[[${dsNgay.![revenue]}]]*/[]].reverse(),monthLabels=[.../*[[${dsThang.![label]}]]*/[]].reverse(),monthValues=[.../*[[${dsThang.![revenue]}]]*/[]].reverse();
+const money=v=>new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND',maximumFractionDigits:0}).format(v),systemDark=window.matchMedia('(prefers-color-scheme: dark)').matches,chartTheme=systemDark?{text:'#a7a8b6',grid:'rgba(255,255,255,.06)',tooltip:'#1b1b25',tooltipBorder:'#343442',ring:'#15151d',line:'#a78bfa'}:{text:'#62636f',grid:'rgba(24,24,27,.08)',tooltip:'#ffffff',tooltipBorder:'#dedee3',ring:'#ffffff',line:'#7c3aed'}; Chart.defaults.color=chartTheme.text; Chart.defaults.font.family='Outfit,system-ui,sans-serif';
+const dc=document.getElementById('revenueChart'); if(dc&&dailyValues.length){const c=dc.getContext('2d'),g=c.createLinearGradient(0,0,0,320);g.addColorStop(0,systemDark?'rgba(139,92,246,.38)':'rgba(124,58,237,.20)');g.addColorStop(1,'rgba(139,92,246,0)');new Chart(c,{type:'line',data:{labels:dailyLabels,datasets:[{data:dailyValues,borderColor:chartTheme.line,backgroundColor:g,fill:true,tension:.38,borderWidth:2,pointRadius:0,pointHoverRadius:5}]},options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:false},tooltip:{backgroundColor:chartTheme.tooltip,titleColor:systemDark?'#fff':'#18181b',bodyColor:systemDark?'#fff':'#18181b',borderColor:chartTheme.tooltipBorder,borderWidth:1,padding:12,callbacks:{label:i=>money(i.raw)}}},scales:{x:{grid:{display:false},border:{display:false}},y:{beginAtZero:true,border:{display:false},grid:{color:chartTheme.grid},ticks:{callback:v=>new Intl.NumberFormat('vi-VN',{notation:'compact'}).format(v)}}}}});}
+const mc=document.getElementById('monthlyChart');if(mc&&monthValues.length){const p=['#8b5cf6','#0891b2','#059669','#d97706','#e11d48','#2563eb','#9333ea','#0d9488','#ea580c','#65a30d','#db2777','#4f46e5'],t=monthValues.reduce((s,v)=>s+Number(v),0);new Chart(mc,{type:'doughnut',data:{labels:monthLabels,datasets:[{data:monthValues,backgroundColor:monthLabels.map((_,i)=>p[i%p.length]),borderColor:chartTheme.ring,borderWidth:3,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:14,boxWidth:8,generateLabels:()=>monthLabels.map((l,i)=>({text:`${l} · ${t?((monthValues[i]/t)*100).toFixed(1):0}%`,fillStyle:p[i%p.length],strokeStyle:'transparent',pointStyle:'circle',index:i}))}},tooltip:{backgroundColor:chartTheme.tooltip,titleColor:systemDark?'#fff':'#18181b',bodyColor:systemDark?'#fff':'#18181b',borderColor:chartTheme.tooltipBorder,borderWidth:1,padding:12,callbacks:{label:i=>`${money(i.raw)} (${t?((i.raw/t)*100).toFixed(1):0}%)`}}}}});}
+</script>
+</body></html>

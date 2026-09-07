@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface ChiTietGioHangRepository extends JpaRepository<ChiTietGioHang, Integer> {
     List<ChiTietGioHang> findByGioHangId(Integer gioHangId);
     Optional<ChiTietGioHang> findByGioHangIdAndSanPhamId(Integer gioHangId, Integer sanPhamId);
+    Optional<ChiTietGioHang> findByGioHangIdAndBienTheId(Integer gioHangId, Integer bienTheId);
+    boolean existsByBienTheId(Integer bienTheId);
     void deleteByGioHangId(Integer gioHangId);
 
     @org.springframework.data.jpa.repository.Modifying
