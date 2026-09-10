@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: html_head('Giỏ hàng')}"></head>
-<body class="d-flex flex-column min-vh-100">
+<body class="cart-page d-flex flex-column min-vh-100">
     <div th:replace="~{fragments/header :: navbar}"></div>
 
-    <main class="container my-5 flex-grow-1">
+    <main class="container my-5 flex-grow-1 user-page-main">
         <h3 class="fw-bold mb-4"><i class="fa-solid fa-cart-shopping text-primary me-2"></i>Giỏ hàng của bạn</h3>
 
         <!-- Alerts -->
@@ -41,8 +41,8 @@
                             <tr th:each="item : ${cartItems}">
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <img th:src="${item.sanPham.anhUrl != null ? (item.sanPham.anhUrl.startsWith('http') ? item.sanPham.anhUrl : '/uploads/' + item.sanPham.anhUrl) : 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=100'}"
-                                             class="rounded-3 me-3" alt="Product Image" style="width: 60px; height: 60px; object-fit: cover;">
+                                        <img th:src="${item.sanPham.anhUrl != null ? (item.sanPham.anhUrl.startsWith('http') ? item.sanPham.anhUrl : '/uploads/' + item.sanPham.anhUrl) : '/images/hat-placeholder.svg'}"
+                                             class="rounded-3 me-3" alt="Product Image" onerror="this.onerror=null;this.src='/images/hat-placeholder.svg'" style="width: 60px; height: 60px; object-fit: cover;">
                                         <div>
                                             <a th:href="@{/san-pham/{id}(id=${item.sanPham.id})}" class="fw-bold text-dark text-decoration-none" th:text="${item.sanPham.tenSanPham}"></a>
                                             <div th:if="${item.bienThe != null}" class="text-muted small" th:text="${item.bienThe.mauSac + ' / ' + item.bienThe.kichCo}"></div>
@@ -50,14 +50,14 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="text-center" th:text="${#numbers.formatDecimal(item.sanPham.gia, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                                <td class="text-center" th:text="${#numbers.formatDecimal(item.donGia, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
                                 <td>
                                     <div class="input-group justify-content-center mx-auto" style="max-width: 120px;">
                                         <button class="btn btn-sm btn-outline-secondary btn-cart-minus px-2" type="button" th:data-product-id="${item.id}">-</button>
                                         <input type="text" class="form-control text-center px-1 cart-qty-input bg-white" 
                                                th:value="${item.soLuong}" 
                                                th:data-product-id="${item.id}"
-                                               th:data-max="${item.sanPham.soLuong}"
+                                               th:data-max="${item.tonKho}"
                                                style="max-width: 50px;" readonly>
                                         <button class="btn btn-sm btn-outline-secondary btn-cart-plus px-2" type="button" th:data-product-id="${item.id}">+</button>
                                     </div>
