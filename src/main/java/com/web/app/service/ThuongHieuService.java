@@ -15,6 +15,9 @@ public class ThuongHieuService {
     @Autowired
     private ThuongHieuRepository thuongHieuRepository;
 
+    @Autowired
+    private RealtimeService realtimeService;
+
     public List<ThuongHieu> findAll() {
         return thuongHieuRepository.findAll();
     }
@@ -33,11 +36,14 @@ public class ThuongHieuService {
 
     @Transactional
     public ThuongHieu save(ThuongHieu thuongHieu) {
-        return thuongHieuRepository.save(thuongHieu);
+        ThuongHieu saved = thuongHieuRepository.save(thuongHieu);
+        realtimeService.publish("CATALOG");
+        return saved;
     }
 
     @Transactional
     public void delete(Integer id) {
         thuongHieuRepository.deleteById(id);
+        realtimeService.publish("CATALOG");
     }
 }

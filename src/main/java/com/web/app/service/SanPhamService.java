@@ -19,6 +19,9 @@ public class SanPhamService {
     @Autowired
     private SanPhamRepository sanPhamRepository;
 
+    @Autowired
+    private RealtimeService realtimeService;
+
     public List<SanPham> findAll() {
         return sanPhamRepository.findAll();
     }
@@ -44,11 +47,14 @@ public class SanPhamService {
 
     @Transactional
     public SanPham save(SanPham sanPham) {
-        return sanPhamRepository.save(sanPham);
+        SanPham saved = sanPhamRepository.save(sanPham);
+        realtimeService.publish("CATALOG");
+        return saved;
     }
 
     @Transactional
     public void delete(Integer id) {
         sanPhamRepository.deleteById(id);
+        realtimeService.publish("CATALOG");
     }
 }
