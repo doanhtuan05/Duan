@@ -1,67 +1,30 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: html_head('Lịch sử đơn hàng')}"></head>
-<body class="d-flex flex-column min-vh-100">
-    <div th:replace="~{fragments/header :: navbar}"></div>
-
-    <main class="container my-5 flex-grow-1">
-        <h3 class="fw-bold mb-4"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>Lịch sử đơn hàng</h3>
-
-        <!-- Alerts -->
-        <div th:if="${successMessage}" class="alert alert-success border-0 rounded-3 shadow-sm py-3 mb-4" role="alert">
-            <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
-        </div>
-        <div th:if="${errorMessage}" class="alert alert-danger border-0 rounded-3 shadow-sm py-3 mb-4" role="alert">
-            <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
-        </div>
-
-        <!-- Empty Orders State -->
-        <div th:if="${orders.isEmpty()}" class="glass-card p-5 text-center my-4">
-            <i class="fa-solid fa-folder-open text-muted mb-3" style="font-size: 5rem;"></i>
-            <h4 class="fw-bold">Bạn chưa mua đơn hàng nào!</h4>
-            <p class="text-muted mb-4">Hãy tiếp tục khám phá và mua sắm các sản phẩm hấp dẫn của chúng tôi.</p>
-            <a th:href="@{/}" class="btn btn-primary px-4 py-2"><i class="fa-solid fa-store me-2"></i>Xem sản phẩm</a>
-        </div>
-
-        <!-- Orders List -->
-        <div class="glass-card p-4 table-responsive" th:if="${!orders.isEmpty()}">
-            <table class="table align-middle">
-                <thead>
-                    <tr>
-                        <th scope="col" class="text-center">Mã đơn</th>
-                        <th scope="col">Ngày đặt</th>
-                        <th scope="col">Người nhận</th>
-                        <th scope="col" class="text-center">Trạng thái</th>
-                        <th scope="col" class="text-end">Tổng tiền</th>
-                        <th scope="col" class="text-center">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="order : ${orders}">
-                        <td class="text-center fw-bold" th:text="'#' + ${order.id}"></td>
-                        <td th:text="${#temporals.format(order.ngayDat, 'dd/MM/yyyy HH:mm')}"></td>
-                        <td>
-                            <div class="fw-bold text-dark" th:text="${order.hoTenNhan}"></div>
-                            <div class="text-muted small" th:text="${order.soDienThoaiNhan}"></div>
-                        </td>
-                        <td class="text-center">
-                            <!-- Switch status classes -->
-                            <span th:if="${order.trangThai == 'PENDING'}" class="badge bg-warning text-dark badge-premium">Chờ xử lý</span>
-                            <span th:if="${order.trangThai == 'CONFIRMED'}" class="badge bg-info text-dark badge-premium">Đã xác nhận</span>
-                            <span th:if="${order.trangThai == 'SHIPPING'}" class="badge bg-primary text-white badge-premium">Đang giao</span>
-                            <span th:if="${order.trangThai == 'DELIVERED'}" class="badge bg-success text-white badge-premium">Đã giao</span>
-                            <span th:if="${order.trangThai == 'CANCELLED'}" class="badge bg-secondary text-white badge-premium">Đã hủy</span>
-                        </td>
-                        <td class="text-end fw-bold text-primary" th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
-                        <td class="text-center">
-                            <a th:href="@{/orders/{id}(id=${order.id})}" class="btn btn-sm btn-outline-dark px-3 rounded-3"><i class="fa-solid fa-magnifying-glass-plus me-1"></i>Xem chi tiết</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </main>
-
-    <div th:replace="~{fragments/footer :: footer}"></div>
-</body>
-</html>
+<body class="orders-page d-flex flex-column min-vh-100">
+<div th:replace="~{fragments/header :: navbar}"></div>
+<main class="container user-page-main flex-grow-1">
+    <header class="customer-page-heading">
+        <div><p class="customer-kicker">TÀI KHOẢN CỦA TÔI</p><h1><i class="fa-solid fa-clock-rotate-left"></i>Lịch sử đơn hàng</h1><p>Theo dõi trạng thái và xem lại các đơn mua của bạn.</p></div>
+        <a th:href="@{/}" class="customer-outline-btn"><i class="fa-solid fa-bag-shopping"></i> Tiếp tục mua sắm</a>
+    </header>
+    <div th:if="${successMessage}" class="customer-alert success" role="alert"><i class="fa-solid fa-circle-check"></i><span th:text="${successMessage}"></span></div>
+    <div th:if="${errorMessage}" class="customer-alert error" role="alert"><i class="fa-solid fa-triangle-exclamation"></i><span th:text="${errorMessage}"></span></div>
+    <section th:if="${orders.isEmpty()}" class="customer-empty-state">
+        <div class="customer-empty-icon"><i class="fa-solid fa-receipt"></i></div><h2>Bạn chưa có đơn hàng nào</h2><p>Khám phá các mẫu mũ mới và đặt đơn đầu tiên của bạn.</p><a th:href="@{/}" class="customer-primary-btn"><i class="fa-solid fa-store"></i> Xem sản phẩm</a>
+    </section>
+    <section class="customer-orders-card" th:if="${!orders.isEmpty()}">
+        <div class="customer-card-title"><div><span>ĐƠN HÀNG</span><h2 th:text="${#numbers.formatInteger(orders.size(),0,'COMMA')} + ' đơn hàng'">0 đơn hàng</h2></div><i class="fa-solid fa-box-open"></i></div>
+        <div class="customer-orders-table-wrap"><table class="customer-orders-table"><thead><tr><th>Mã đơn</th><th>Ngày đặt</th><th>Người nhận</th><th>Trạng thái</th><th class="text-end">Tổng tiền</th><th></th></tr></thead><tbody>
+        <tr th:each="order : ${orders}">
+            <td data-label="Mã đơn"><a class="customer-order-code" th:href="@{/orders/{id}(id=${order.id})}" th:text="'#' + ${order.id}">#0</a></td>
+            <td data-label="Ngày đặt"><time th:datetime="${order.ngayDat}" th:text="${#temporals.format(order.ngayDat, 'dd/MM/yyyy HH:mm')}"></time></td>
+            <td data-label="Người nhận"><div class="customer-recipient"><strong th:text="${order.hoTenNhan}"></strong><small th:text="${order.soDienThoaiNhan}"></small></div></td>
+            <td data-label="Trạng thái"><span class="customer-status" th:classappend="${' status-'+#strings.toLowerCase(order.trangThai)}"><i class="fa-solid fa-circle"></i><span th:switch="${order.trangThai}"><span th:case="'PENDING'">Chờ xử lý</span><span th:case="'CONFIRMED'">Đã xác nhận</span><span th:case="'SHIPPING'">Đang giao</span><span th:case="'DELIVERED'">Đã giao</span><span th:case="'CANCELLED'">Đã hủy</span><span th:case="*" th:text="${order.trangThai}"></span></span></span></td>
+            <td data-label="Tổng tiền" class="customer-order-total" th:text="${#numbers.formatDecimal(order.tongTien,0,'COMMA',0,'POINT')} + ' ₫'"></td>
+            <td data-label=""><a class="customer-detail-btn" th:href="@{/orders/{id}(id=${order.id})}" th:aria-label="${'Xem chi tiết đơn hàng '+order.id}"><i class="fa-regular fa-eye"></i><span>Chi tiết</span></a></td>
+        </tr></tbody></table></div>
+    </section>
+</main>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body></html>

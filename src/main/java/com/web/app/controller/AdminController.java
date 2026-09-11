@@ -151,6 +151,7 @@ public class AdminController {
             if (!file.isEmpty()) {
                 String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
                 Path path = Paths.get("uploads/" + fileName);
+                Files.createDirectories(path.getParent());
                 Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
                 sp.setAnhUrl(fileName);
             }
@@ -202,6 +203,7 @@ public class AdminController {
             } else if (!file.isEmpty()) {
                 String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
                 Path path = Paths.get("uploads/" + fileName);
+                Files.createDirectories(path.getParent());
                 Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
                 existing.setAnhUrl(fileName);
             }
