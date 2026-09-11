@@ -1,40 +1,37 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: html_head(${product.tenSanPham})}"></head>
-<body class="d-flex flex-column min-vh-100">
+<body class="product-detail-page d-flex flex-column min-vh-100">
 <div th:replace="~{fragments/header :: navbar}"></div>
-<main class="container my-5 flex-grow-1">
-  <nav class="mb-4"><a th:href="@{/}">Trang chủ</a> / <span th:text="${product.tenSanPham}"></span></nav>
-  <div class="row g-5">
-    <div class="col-md-6"><div class="glass-card p-3 text-center"><img th:src="${product.anhUrl != null ? (product.anhUrl.startsWith('http') ? product.anhUrl : '/uploads/' + product.anhUrl) : '/images/hat-placeholder.svg'}" class="img-fluid rounded-3" th:alt="${product.tenSanPham}" style="max-height:450px;object-fit:cover;width:100%"></div></div>
-    <div class="col-md-6"><div class="glass-card p-5 h-100">
-      <div class="d-flex gap-2 mb-3"><span class="badge bg-primary" th:text="${product.danhMuc.tenDanhMuc}"></span><span class="badge bg-secondary" th:text="${product.thuongHieu.tenThuongHieu}"></span></div>
-      <h2 class="fw-bold mb-3" th:text="${product.tenSanPham}"></h2>
-      <h3 class="text-primary fw-bold mb-4" id="variantPrice" th:text="${#numbers.formatDecimal(product.gia,0,'COMMA',0,'POINT')} + ' ₫'"></h3>
-      <p class="text-muted" th:text="${product.moTa}"></p><hr>
-      <form th:action="@{/cart/add}" method="post" th:if="${!#lists.isEmpty(variants) or product.soLuong > 0}">
+<main class="container product-detail-main flex-grow-1">
+  <nav class="product-breadcrumb" aria-label="Breadcrumb"><a th:href="@{/}"><i class="fa-solid fa-house"></i> Trang chủ</a><i class="fa-solid fa-chevron-right"></i><span th:text="${product.danhMuc != null ? product.danhMuc.tenDanhMuc : 'Sản phẩm'}">Sản phẩm</span><i class="fa-solid fa-chevron-right"></i><strong th:text="${product.tenSanPham}">Tên sản phẩm</strong></nav>
+  <div class="product-detail-layout">
+    <section class="product-gallery-card"><div class="detail-image-shell"><img th:src="${product.anhUrl != null && !#strings.isEmpty(product.anhUrl) ? (product.anhUrl.startsWith('http') ? product.anhUrl : '/uploads/' + product.anhUrl) : '/images/hat-placeholder.svg'}" th:alt="${product.tenSanPham}" onerror="this.onerror=null;this.src='/images/hat-placeholder.svg';"><span class="detail-stock-badge" th:if="${product.soLuong > 0}"><i class="fa-solid fa-circle-check"></i> Còn hàng</span><span class="detail-stock-badge sold-out" th:if="${product.soLuong <= 0}"><i class="fa-solid fa-ban"></i> Hết hàng</span></div></section>
+    <section class="product-info-card">
+      <div class="detail-meta"><span th:text="${product.danhMuc != null ? product.danhMuc.tenDanhMuc : 'Mũ thời trang'}">Danh mục</span><span th:text="${product.thuongHieu != null ? product.thuongHieu.tenThuongHieu : 'HATS.VN'}">Thương hiệu</span></div>
+      <h1 th:text="${product.tenSanPham}">Tên sản phẩm</h1>
+      <p class="detail-price" id="variantPrice" th:text="${#numbers.formatDecimal(product.gia,0,'COMMA',0,'POINT')} + ' ₫'">0 ₫</p>
+      <div class="detail-description"><h2>Mô tả sản phẩm</h2><p th:text="${product.moTa != null && !product.moTa.isBlank() ? product.moTa : 'Sản phẩm mũ thời trang được tuyển chọn bởi HATS.VN.'}"></p></div>
+      <form th:action="@{/cart/add}" method="post" class="detail-buy-form" th:if="${!#lists.isEmpty(variants) or product.soLuong > 0}">
         <input type="hidden" name="productId" th:value="${product.id}">
-        <div class="mb-3" th:if="${!#lists.isEmpty(variants)}">
-          <label class="form-label fw-bold" for="variantId">Màu sắc / kích cỡ *</label>
-          <select class="form-select" name="variantId" id="variantId" required>
-            <option value="">Chọn biến thể</option>
-            <option th:each="v : ${variants}" th:value="${v.id}" th:data-price="${v.gia}" th:data-stock="${v.soLuong}" th:disabled="${v.soLuong <= 0}" th:text="${v.mauSac + ' / ' + v.kichCo + ' — ' + #numbers.formatDecimal(v.gia,0,'COMMA',0,'POINT') + ' ₫ (' + v.soLuong + ' còn lại)'}"></option>
-          </select>
-        </div>
-        <div class="mb-3"><span class="fw-bold">Tồn kho: </span><span id="stockLabel" th:text="${#lists.isEmpty(variants) ? product.soLuong + ' sản phẩm' : 'Chọn biến thể'}"></span></div>
-        <div class="row g-3 align-items-center"><div class="col-auto"><label for="quantity" class="form-label mb-0">Số lượng:</label></div><div class="col-auto"><input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" th:max="${product.soLuong}" required style="width:90px"></div><div class="col"><button class="btn btn-accent w-100 py-2" type="submit"><i class="fa-solid fa-cart-plus me-2"></i>Thêm vào giỏ</button></div></div>
+        <label class="detail-label" for="variantId" th:if="${!#lists.isEmpty(variants)}">Màu sắc / kích cỡ <b>*</b></label>
+        <select class="detail-select" name="variantId" id="variantId" required th:if="${!#lists.isEmpty(variants)}"><option value="">Chọn biến thể phù hợp</option><option th:each="v : ${variants}" th:value="${v.id}" th:data-price="${v.gia}" th:data-stock="${v.soLuong}" th:disabled="${v.soLuong <= 0}" th:text="${v.mauSac + ' / ' + v.kichCo + ' — ' + #numbers.formatDecimal(v.gia,0,'COMMA',0,'POINT') + ' ₫ (' + v.soLuong + ' còn lại)'}"></option></select>
+        <div class="detail-stock-row"><span><i class="fa-solid fa-box"></i> Tồn kho</span><strong id="stockLabel" th:text="${#lists.isEmpty(variants) ? product.soLuong + ' sản phẩm' : 'Chọn biến thể'}">0 sản phẩm</strong></div>
+        <div class="detail-purchase-row"><div class="detail-quantity"><button type="button" id="decreaseQuantity" aria-label="Giảm số lượng"><i class="fa-solid fa-minus"></i></button><input type="number" id="quantity" name="quantity" value="1" min="1" th:max="${product.soLuong}" required aria-label="Số lượng"><button type="button" id="increaseQuantity" aria-label="Tăng số lượng"><i class="fa-solid fa-plus"></i></button></div><button class="detail-buy-btn" type="submit"><i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ</button></div>
       </form>
-      <button th:if="${#lists.isEmpty(variants) and product.soLuong <= 0}" class="btn btn-secondary w-100" disabled>Hết hàng</button>
-    </div></div>
+      <div class="detail-sold-out" th:if="${#lists.isEmpty(variants) and product.soLuong <= 0}"><i class="fa-solid fa-circle-xmark"></i> Sản phẩm hiện đã hết hàng</div>
+      <div class="detail-benefits"><span><i class="fa-solid fa-truck-fast"></i> Giao hàng nhanh</span><span><i class="fa-solid fa-shield-heart"></i> Đổi trả dễ dàng</span><span><i class="fa-solid fa-lock"></i> Thanh toán an toàn</span></div>
+    </section>
   </div>
 </main>
 <div th:replace="~{fragments/footer :: footer}"></div>
 <script>
-document.getElementById('variantId')?.addEventListener('change', function () {
-  const option = this.options[this.selectedIndex], stock = Number(option.dataset.stock || 0), price = Number(option.dataset.price || 0);
-  document.getElementById('quantity').max = stock || 1; document.getElementById('quantity').value = 1;
-  document.getElementById('stockLabel').textContent = stock + ' sản phẩm';
-  document.getElementById('variantPrice').textContent = new Intl.NumberFormat('vi-VN').format(price) + ' ₫';
+document.addEventListener('DOMContentLoaded', function () {
+  const select = document.getElementById('variantId'), quantity = document.getElementById('quantity'), price = document.getElementById('variantPrice'), stock = document.getElementById('stockLabel');
+  const format = value => new Intl.NumberFormat('vi-VN').format(value) + ' ₫';
+  select?.addEventListener('change', function () { const option = this.options[this.selectedIndex], available = Number(option.dataset.stock || 0), unitPrice = Number(option.dataset.price || 0); quantity.max = Math.max(available, 1); quantity.value = 1; stock.textContent = available ? available + ' sản phẩm' : 'Biến thể này đã hết hàng'; price.textContent = format(unitPrice); });
+  document.getElementById('decreaseQuantity')?.addEventListener('click', () => { quantity.value = Math.max(1, Number(quantity.value || 1) - 1); });
+  document.getElementById('increaseQuantity')?.addEventListener('click', () => { const max = Number(quantity.max || 1); quantity.value = Math.min(max, Number(quantity.value || 1) + 1); });
 });
 </script>
 </body></html>

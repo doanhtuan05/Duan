@@ -15,6 +15,9 @@ public class DanhMucService {
     @Autowired
     private DanhMucRepository danhMucRepository;
 
+    @Autowired
+    private RealtimeService realtimeService;
+
     public List<DanhMuc> findAll() {
         return danhMucRepository.findAll();
     }
@@ -33,11 +36,14 @@ public class DanhMucService {
 
     @Transactional
     public DanhMuc save(DanhMuc danhMuc) {
-        return danhMucRepository.save(danhMuc);
+        DanhMuc saved = danhMucRepository.save(danhMuc);
+        realtimeService.publish("CATALOG");
+        return saved;
     }
 
     @Transactional
     public void delete(Integer id) {
         danhMucRepository.deleteById(id);
+        realtimeService.publish("CATALOG");
     }
 }

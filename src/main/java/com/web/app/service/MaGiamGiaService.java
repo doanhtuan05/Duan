@@ -14,6 +14,9 @@ public class MaGiamGiaService {
     @Autowired
     private MaGiamGiaRepository repository;
 
+    @Autowired
+    private RealtimeService realtimeService;
+
     public List<MaGiamGia> findAll() {
         return repository.findAll();
     }
@@ -41,11 +44,14 @@ public class MaGiamGiaService {
         if (ma.getSoLuong() != null && ma.getSoLuong() < 1) throw new IllegalArgumentException("Giới hạn lượt dùng phải lớn hơn 0.");
         if (ma.getId() != null) repository.findById(ma.getId()).ifPresent(existing -> ma.setSoLuongDaDung(existing.getSoLuongDaDung()));
         if (ma.getSoLuongDaDung() == null) ma.setSoLuongDaDung(0);
-        return repository.save(ma);
+        MaGiamGia saved = repository.save(ma);
+        realtimeService.publish("COUPONS");
+        return saved;
     }
 
     public void delete(Integer id) {
         repository.deleteById(id);
+        realtimeService.publish("COUPONS");
     }
 
     public void checkCouponValidity(MaGiamGia coupon, Double orderAmount) {

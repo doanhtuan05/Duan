@@ -37,6 +37,9 @@ public class DonHangService {
     @Autowired
     private MaGiamGiaService maGiamGiaService;
 
+    @Autowired
+    private RealtimeService realtimeService;
+
     @Transactional
     public DonHang createOrder(Integer khachHangId, String hoTenNhan, String soDienThoaiNhan, String diaChiNhan, String ghiChu) {
         return createOrder(khachHangId, hoTenNhan, soDienThoaiNhan, diaChiNhan, ghiChu, null);
@@ -124,6 +127,9 @@ public class DonHangService {
 
         // Clear cart
         gioHangService.clearCart(khachHangId);
+        realtimeService.publishForCustomer("ORDERS", khachHangId);
+        realtimeService.publish("ADMIN_ORDERS");
+        realtimeService.publish("CATALOG");
 
         return savedOrder;
     }
@@ -210,5 +216,8 @@ public class DonHangService {
 
         dh.setTrangThai(newStatus);
         donHangRepository.save(dh);
+        realtimeService.publishForCustomer("ORDERS", dh.getKhachHang().getId());
+        realtimeService.publish("ADMIN_ORDERS");
+        realtimeService.publish("CATALOG");
     }
 }

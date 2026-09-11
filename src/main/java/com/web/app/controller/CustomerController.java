@@ -43,6 +43,9 @@ public class CustomerController {
     @Autowired
     private BienTheSanPhamRepository bienTheSanPhamRepository;
 
+    @Autowired
+    private RealtimeService realtimeService;
+
     // Helper to get logged-in customer from session
     private KhachHang getSessionCustomer(HttpSession session) {
         return (KhachHang) session.getAttribute("user");
@@ -439,6 +442,7 @@ public class CustomerController {
         try {
             KhachHang updated = khachHangService.updateProfile(kh.getId(), hoTen, email, soDienThoai, diaChi);
             session.setAttribute("user", updated); // sync back to session immediately
+            realtimeService.publishForCustomer("PROFILE", updated.getId());
             redirectAttributes.addFlashAttribute("successMessage", "Cập nhật thông tin cá nhân thành công!");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
