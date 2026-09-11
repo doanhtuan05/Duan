@@ -16,6 +16,7 @@ public class GioHangService {
     @Autowired private KhachHangRepository khachHangRepository;
     @Autowired private SanPhamRepository sanPhamRepository;
     @Autowired private BienTheSanPhamRepository bienTheSanPhamRepository;
+    @Autowired private RealtimeService realtimeService;
 
     private GioHang getOrCreateGioHang(Integer customerId) {
         return gioHangRepository.findByKhachHangId(customerId).orElseGet(() -> {
@@ -54,14 +55,15 @@ public class GioHangService {
             item.setSoLuong(item.getSoLuong() + quantity);
             chiTietGioHangRepository.save(item);
         } else chiTietGioHangRepository.save(ChiTietGioHang.builder().gioHang(cart).sanPham(product).bienThe(variant).soLuong(quantity).build());
+        realtimeService.publishForCustomer("CART", customerId);
     }
 
     @Transactional
     public void updateCartItemQuantityById(Integer customerId, Integer itemId, int quantity) {
         ChiTietGioHang item = getOwnedItem(customerId, itemId);
-        if (quantity <= 0) { chiTietGioHangRepository.delete(item); return; }
+        if (quantity <= 0) { chiTietGioHangRepository.delete(item); realtimeService.publishForCustomer("CART", customerId); return; }
         if (item.getTonKho() < quantity) throw new IllegalArgumentException("Số lượng trong kho không đủ!");
-        item.setSoLuong(quantity); chiTietGioHangRepository.save(item);
+        item.setSoLuong(quantity); chiTietGioHangRepository.save(item); realtimeService.publishForCustomer("CART", customerId);
     }
 
     @Transactional
@@ -73,13 +75,13 @@ public class GioHangService {
     }
 
     @Transactional
-    public void removeCartItemById(Integer customerId, Integer itemId) { chiTietGioHangRepository.delete(getOwnedItem(customerId, itemId)); }
+    public void removeCartItemById(Integer customerId, Integer itemId) { chiTietGioHangRepository.delete(getOwnedItem(customerId, itemId)); realtimeService.publishForCustomer("CART", customerId); }
 
     @Transactional
     public void removeCartItem(Integer customerId, Integer productId) {
         gioHangRepository.findByKhachHangId(customerId).flatMap(cart ->
                 chiTietGioHangRepository.findByGioHangIdAndSanPhamId(cart.getId(), productId))
-                .ifPresent(chiTietGioHangRepository::delete);
+                .ifPresent(item -> { chiTietGioHangRepository.delete(item); realtimeService.publishForCustomer("CART", customerId); });
     }
 
     private ChiTietGioHang getOwnedItem(Integer customerId, Integer itemId) {
@@ -90,6 +92,6 @@ public class GioHangService {
 
     @Transactional
     public void clearCart(Integer customerId) {
-        gioHangRepository.findByKhachHangId(customerId).ifPresent(cart -> chiTietGioHangRepository.deleteAll(chiTietGioHangRepository.findByGioHangId(cart.getId())));
+        gioHangRepository.findByKhachHangId(customerId).ifPresent(cart -> { chiTietGioHangRepository.deleteAll(chiTietGioHangRepository.findByGioHangId(cart.getId())); realtimeService.publishForCustomer("CART", customerId); });
     }
 }
