@@ -13,17 +13,23 @@ import java.util.List;
 @Repository
 public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
     
-    @Query("SELECT s FROM SanPham s WHERE " +
+    @Query("SELECT DISTINCT s FROM SanPham s LEFT JOIN s.bienThe v WHERE " +
            "(:search IS NULL OR s.tenSanPham LIKE %:search% OR s.moTa LIKE %:search%) AND " +
            "(:danhMucId IS NULL OR s.danhMuc.id = :danhMucId) AND " +
            "(:thuongHieuId IS NULL OR s.thuongHieu.id = :thuongHieuId) AND " +
            "(:minGia IS NULL OR s.gia >= :minGia) AND " +
-           "(:maxGia IS NULL OR s.gia <= :maxGia)")
+           "(:maxGia IS NULL OR s.gia <= :maxGia) AND " +
+           "(:mauSac IS NULL OR v.mauSac = :mauSac) AND " +
+           "(:kichCo IS NULL OR v.kichCo = :kichCo) AND " +
+           "(:onlyInStock = false OR s.soLuong > 0)")
     Page<SanPham> filterSanPham(@Param("search") String search,
                                 @Param("danhMucId") Integer danhMucId,
                                 @Param("thuongHieuId") Integer thuongHieuId,
                                 @Param("minGia") Double minGia,
                                 @Param("maxGia") Double maxGia,
+                                @Param("mauSac") String mauSac,
+                                @Param("kichCo") String kichCo,
+                                @Param("onlyInStock") boolean onlyInStock,
                                 Pageable pageable);
 
     List<SanPham> findTop8ByOrderByNgayTaoDesc();
