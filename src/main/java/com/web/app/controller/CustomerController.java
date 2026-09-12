@@ -57,12 +57,16 @@ public class CustomerController {
                            @RequestParam(value = "thuongHieuId", required = false) Integer thuongHieuId,
                            @RequestParam(value = "minPrice", required = false) Double minPrice,
                            @RequestParam(value = "maxPrice", required = false) Double maxPrice,
+                           @RequestParam(value = "color", required = false) String color,
+                           @RequestParam(value = "variantSize", required = false) String sizeFilter,
+                           @RequestParam(value = "inStock", defaultValue = "false") boolean inStock,
+                           @RequestParam(value = "sort", defaultValue = "newest") String sort,
                            @RequestParam(value = "page", defaultValue = "0") int page,
                            @RequestParam(value = "size", defaultValue = "6") int size,
                            Model model) {
 
         Page<SanPham> productPage = sanPhamService.getFilteredProducts(
-                keyword, danhMucId, thuongHieuId, minPrice, maxPrice, page, size);
+                keyword, danhMucId, thuongHieuId, minPrice, maxPrice, color, sizeFilter, inStock, sort, page, size);
 
         model.addAttribute("products", productPage.getContent());
         model.addAttribute("currentPage", page);
@@ -72,6 +76,8 @@ public class CustomerController {
         // Dropdowns for filtering
         model.addAttribute("categories", danhMucService.findAll());
         model.addAttribute("brands", thuongHieuService.findAll());
+        model.addAttribute("colors", bienTheSanPhamRepository.findDistinctColors());
+        model.addAttribute("sizes", bienTheSanPhamRepository.findDistinctSizes());
 
         // Retain search parameters in the UI
         model.addAttribute("keyword", keyword);
@@ -79,6 +85,10 @@ public class CustomerController {
         model.addAttribute("selectedThuongHieuId", thuongHieuId);
         model.addAttribute("minPrice", minPrice);
         model.addAttribute("maxPrice", maxPrice);
+        model.addAttribute("selectedColor", color);
+        model.addAttribute("selectedSize", sizeFilter);
+        model.addAttribute("inStock", inStock);
+        model.addAttribute("sort", sort);
 
         return "index";
     }

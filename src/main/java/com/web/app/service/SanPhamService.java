@@ -31,10 +31,23 @@ public class SanPhamService {
     }
 
     public Page<SanPham> getFilteredProducts(String search, Integer danhMucId, Integer thuongHieuId, Double minGia, Double maxGia, int page, int size) {
+        return getFilteredProducts(search, danhMucId, thuongHieuId, minGia, maxGia, null, null, false, "newest", page, size);
+    }
+
+    public Page<SanPham> getFilteredProducts(String search, Integer danhMucId, Integer thuongHieuId, Double minGia, Double maxGia,
+                                               String mauSac, String kichCo, boolean onlyInStock, String sort, int page, int size) {
         // Clean empty search queries
         String searchPattern = (search == null || search.trim().isEmpty()) ? null : search.trim();
-        Pageable pageable = PageRequest.of(page, size, Sort.by("ngayTao").descending());
-        return sanPhamRepository.filterSanPham(searchPattern, danhMucId, thuongHieuId, minGia, maxGia, pageable);
+        String cleanColor = (mauSac == null || mauSac.isBlank()) ? null : mauSac.trim();
+        String cleanSize = (kichCo == null || kichCo.isBlank()) ? null : kichCo.trim();
+        Sort sorting = switch (sort == null ? "newest" : sort) {
+            case "price_asc" -> Sort.by("gia").ascending();
+            case "price_desc" -> Sort.by("gia").descending();
+            case "name_asc" -> Sort.by("tenSanPham").ascending();
+            default -> Sort.by("ngayTao").descending();
+        };
+        Pageable pageable = PageRequest.of(Math.max(page, 0), size, sorting);
+        return sanPhamRepository.filterSanPham(searchPattern, danhMucId, thuongHieuId, minGia, maxGia, cleanColor, cleanSize, onlyInStock, pageable);
     }
 
     public Optional<SanPham> findById(Integer id) {
